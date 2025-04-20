@@ -1,44 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku App by Pablis
-    </title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku App by Pablis</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="main-layout">
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header" id="sidebar-toggle">
+          <h3>Best Times <span class="arrow">▼</span></h3>
+        </div>
+        <div class="sidebar-content">
+          <ul id="best-times">
+            <li>Easy: <span id="easy-time">--:--</span></li>
+            <li>Medium: <span id="medium-time">--:--</span></li>
+            <li>Hard: <span id="hard-time">--:--</span></li>
+            <li>Insane: <span id="insane-time">--:--</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container">
         <h1>Sudoku App by Pablis</h1>
-        
+
         <div class="controls">
-            <select id="difficulty">
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-                <option value="insane">Insane</option>
-            </select>
-            <button id="new-game">New Game</button>
-            <button id="check-solution">Check Solution</button>
-            <button id="solve">Show Solution</button>
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="insane">Insane</option>
+          </select>
+          <button id="new-game">🎲 New Game</button>
+          <button id="check-solution">✅ Check Solution</button>
+          <button id="solve">🧠 Show Solution</button>
         </div>
-        
+
         <div class="sudoku-container">
-            <table id="sudoku-board"></table>
+          <table id="sudoku-board"></table>
         </div>
-        
+
         <div class="stats">
-            <h3>Best Times</h3>
-            <ul id="best-times">
-                <li>Easy: <span id="easy-time">--:--</span></li>
-                <li>Medium: <span id="medium-time">--:--</span></li>
-                <li>Hard: <span id="hard-time">--:--</span></li>
-                <li>Insane: <span id="insane-time">--:--</span></li>
-            </ul>
-            <div id="timer">00:00</div>
+          <div id="timer">00:00</div>
         </div>
+      </div>
     </div>
 
     <script src="app.js"></script>
-</body>
+  </body>
 </html>

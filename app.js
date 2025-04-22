@@ -13,6 +13,32 @@ document.addEventListener("DOMContentLoaded", function () {
     insane: document.getElementById("insane-time"),
   };
 
+  const timesButton = document.getElementById("timesButton");
+
+  const label = document.getElementById("vertical-label");
+  const text = label.textContent.trim();
+  label.innerHTML = text
+    .split("")
+    .map((char) => {
+      return char === " "
+        ? '<span class="spacer">&nbsp;</span>'
+        : `<span>${char}</span>`;
+    })
+    .join("");
+
+  // Set initial state (collapsed)
+  let isExpanded = false;
+
+  timesButton.addEventListener("click", function () {
+    isExpanded = !isExpanded;
+
+    if (isExpanded) {
+      timesButton.classList.add("expanded");
+    } else {
+      timesButton.classList.remove("expanded");
+    }
+  });
+
   // Game state
   let sudokuBoard = [];
   let solutionBoard = [];

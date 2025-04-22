@@ -7,24 +7,38 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="main-layout">
-      <div class="sidebar" id="sidebar">
-        <div class="sidebar-header" id="sidebar-toggle">
-          <h3>Best Times <span class="arrow">▼</span></h3>
+    <div class="times-button" id="timesButton">
+        <div class="button-content">
+          <h3 id="vertical-label">RECORDS</h3>
         </div>
-        <div class="sidebar-content">
-          <ul id="best-times">
-            <li>Easy: <span id="easy-time">--:--</span></li>
-            <li>Medium: <span id="medium-time">--:--</span></li>
-            <li>Hard: <span id="hard-time">--:--</span></li>
-            <li>Insane: <span id="insane-time">--:--</span></li>
-          </ul>
+        
+        <div class="times-panel" id="timesPanel">
+          <div class="best-times">
+            <div class="time-item">
+              <span class="difficulty">Easy</span>
+              <span id="easy-time" class="time">--:--</span>
+            </div>
+            <div class="time-item">
+              <span class="difficulty">Medium</span>
+              <span id="medium-time" class="time">--:--</span>
+            </div>
+            <div class="time-item">
+              <span class="difficulty">Hard</span>
+              <span id="hard-time" class="time">--:--</span>
+            </div>
+            <div class="time-item">
+              <span class="difficulty">Insane</span>
+              <span id="insane-time" class="time">--:--</span>
+            </div>
+          </div>
         </div>
       </div>
+
+
       <div class="container">
         <h1>Sudoku App by Pablis</h1>
 
-        <div class="controls">
+        <div class="new-game-controls">
           <select id="difficulty">
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
@@ -32,19 +46,23 @@
             <option value="insane">Insane</option>
           </select>
           <button id="new-game">🎲 New Game</button>
-          <button id="check-solution">✅ Check Solution</button>
-          <button id="solve">🧠 Show Solution</button>
+        </div>
+
+        <div class="timer-container">
+          <div id="timer">00:00</div>
         </div>
 
         <div class="sudoku-container">
           <table id="sudoku-board"></table>
         </div>
 
-        <div class="stats">
-          <div id="timer">00:00</div>
+        <div class="controls">
+          <button id="check-solution">✅ Check Solution</button>
+          <button id="solve">🧠 Show Solution</button>
         </div>
+
+
       </div>
-    </div>
 
     <script src="app.js"></script>
   </body>

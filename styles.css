@@ -120,8 +120,6 @@ body {
     position: relative;
 }
 
-
-
 #timer {
     font-size: 28px;
     font-weight: bold;
@@ -175,8 +173,38 @@ select {
 .sudoku-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    margin: 11px 0;
 }
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .control-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .control-section select,
+  .control-section button {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+  }
+
+  .timer {
+    font-size: 18px;
+    font-weight: bold;
+  }
 
 #sudoku-board {
     border-collapse: collapse;
@@ -256,3 +284,73 @@ select {
 #best-times li {
     margin-bottom: 5px;
 }
+
+/* Fixed cells styling */
+#sudoku-board input.fixed {
+    background-color: #f0f0f0; /* Original gray background */
+    color: #333; /* Default text color */
+    font-weight: bold;
+}
+
+/* Dynamic validation styles */
+
+#sudoku-board input.correct {
+    background-color: #ddffdd;
+}
+
+
+/* Error states styling */
+#sudoku-board input.error-state {
+    color: #d32f2f !important;
+    background-color: #ffebee !important;
+}
+
+#sudoku-board input.last-error {
+    font-weight: bold;
+    animation: pulse 0.5s;
+    z-index: 1;
+}
+
+#sudoku-board input.fixed-error {
+    color: #ff8f00 !important;
+    background-color: #f0f0f0 !important;
+    /* background-color: #fff3e0 !important; */
+}
+
+.number-pad-container {
+    display: flex;
+    justify-content: center;
+}
+
+.number-pad {
+    display: grid;
+    grid-template-columns: repeat(5, 40px);
+    grid-gap: 5px;
+}
+
+.number-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.number-btn:hover {
+    background-color: #e0e0e0;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+
+
+

@@ -4,41 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sudoku App by Pablis</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="times-button" id="timesButton">
-        <div class="button-content">
-          <h3 id="vertical-label">RECORDS</h3>
-        </div>
-        
-        <div class="times-panel" id="timesPanel">
-          <div class="best-times">
-            <div class="time-item">
-              <span class="difficulty">Easy</span>
-              <span id="easy-time" class="time">--:--</span>
-            </div>
-            <div class="time-item">
-              <span class="difficulty">Medium</span>
-              <span id="medium-time" class="time">--:--</span>
-            </div>
-            <div class="time-item">
-              <span class="difficulty">Hard</span>
-              <span id="hard-time" class="time">--:--</span>
-            </div>
-            <div class="time-item">
-              <span class="difficulty">Insane</span>
-              <span id="insane-time" class="time">--:--</span>
-            </div>
+      <div class="button-content">
+        <h3 id="vertical-label">RECORDS</h3>
+      </div>
+
+      <div class="times-panel" id="timesPanel">
+        <div class="best-times">
+          <div class="time-item">
+            <span class="difficulty">Easy</span>
+            <span id="easy-time" class="time">--:--</span>
+          </div>
+          <div class="time-item">
+            <span class="difficulty">Medium</span>
+            <span id="medium-time" class="time">--:--</span>
+          </div>
+          <div class="time-item">
+            <span class="difficulty">Hard</span>
+            <span id="hard-time" class="time">--:--</span>
+          </div>
+          <div class="time-item">
+            <span class="difficulty">Insane</span>
+            <span id="insane-time" class="time">--:--</span>
           </div>
         </div>
       </div>
+    </div>
 
+    <div class="container">
+      <h1>Sudoku App by Pablis</h1>
 
-      <div class="container">
-        <h1>Sudoku App by Pablis</h1>
-
-        <div class="new-game-controls">
+      <div class="controls">
+        <div class="control-section">
           <select id="difficulty">
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
@@ -47,22 +51,34 @@
           </select>
           <button id="new-game">🎲 New Game</button>
         </div>
-
-        <div class="timer-container">
+        <div class="control-section">
           <div id="timer">00:00</div>
         </div>
-
-        <div class="sudoku-container">
-          <table id="sudoku-board"></table>
-        </div>
-
-        <div class="controls">
-          <button id="check-solution">✅ Check Solution</button>
+        <div class="control-section">
           <button id="solve">🧠 Show Solution</button>
         </div>
-
-
       </div>
+
+      <div class="sudoku-container">
+        <table id="sudoku-board"></table>
+      </div>
+
+      <div class="number-pad-container">
+        <div class="number-pad">
+          <div class="number-btn" data-num="1">1</div>
+          <div class="number-btn" data-num="2">2</div>
+          <div class="number-btn" data-num="3">3</div>
+          <div class="number-btn" data-num="4">4</div>
+          <div class="number-btn" data-num="5">5</div>
+          <div class="number-btn" data-num="6">6</div>
+          <div class="number-btn" data-num="7">7</div>
+          <div class="number-btn" data-num="8">8</div>
+          <div class="number-btn" data-num="9">9</div>
+          <div class="number-btn" data-num="0"><i class="fas fa-eraser"></i></div>
+        </div>
+      </div>
+
+    </div>
 
     <script src="app.js"></script>
   </body>

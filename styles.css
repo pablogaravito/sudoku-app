@@ -15,7 +15,9 @@ body {
     overflow: hidden;
 }
 
-/* Times button fixed to the left side */
+/* ====================== */
+/* RECORDS BUTTON */
+/* ====================== */
 .times-button {
     position: fixed;
     left: 0;
@@ -24,7 +26,7 @@ body {
     z-index: 10;
     display: flex;
     transition: width 0.3s ease;
-    width: 40px; /* Width when collapsed - much narrower now */
+    width: 40px; /* Width when collapsed */
     height: auto;
     overflow: hidden;
   }
@@ -36,8 +38,7 @@ body {
   
   /* Button content (always visible) */
   .button-content {
-    width: 40px; /* Narrower to match the container */
-    
+    width: 40px; 
     background-color: #2c3e50;
     color: white;
     padding: 12px 6px;
@@ -56,8 +57,6 @@ body {
     align-items: center;
     font-size: 16px;
     margin: 0;
-  /*   line-height: 1.2;
-    letter-spacing: 1px;  */
   }
   
   #vertical-label span {
@@ -136,12 +135,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-.new-game-controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
 
 .controls {
     display: flex;

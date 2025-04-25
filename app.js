@@ -5,6 +5,17 @@ document.addEventListener("DOMContentLoaded", function () {
   const solveBtn = document.getElementById("solve");
   const difficultySelect = document.getElementById("difficulty");
   const timerDisplay = document.getElementById("timer");
+
+
+  const timesButton = document.getElementById("timesButton");
+
+  let lastEditedCell = null;
+
+
+  // ======================
+  // RECORDS BUTTON LOGIC
+  // ======================
+
   const bestTimes = {
     easy: document.getElementById("easy-time"),
     medium: document.getElementById("medium-time"),
@@ -12,7 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
     insane: document.getElementById("insane-time"),
   };
 
-  const timesButton = document.getElementById("timesButton");
+  // Set initial state (collapsed)
+  let isExpanded = false;
 
   const label = document.getElementById("vertical-label");
   const text = label.textContent.trim();
@@ -25,11 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
     })
     .join("");
 
-  // Set initial state (collapsed)
-  let isExpanded = false;
-
-  let lastEditedCell = null;
-
   timesButton.addEventListener("click", function () {
     isExpanded = !isExpanded;
 
@@ -39,6 +46,8 @@ document.addEventListener("DOMContentLoaded", function () {
       timesButton.classList.remove("expanded");
     }
   });
+
+  // ======================
 
   // Game state
   let sudokuBoard = [];
@@ -73,36 +82,36 @@ document.addEventListener("DOMContentLoaded", function () {
         input.dataset.row = i;
         input.dataset.col = j;
 
-        input.addEventListener('input', function(e) {
+        input.addEventListener("input", function (e) {
           if (!isPlaying) return;
-          
+
           const value = e.target.value;
           const row = parseInt(e.target.dataset.row);
           const col = parseInt(e.target.dataset.col);
-          
+
           // Track last edited cell
           lastEditedCell = { row, col };
-          
+
           // Clear all error states first
           clearAllErrorStates();
-          
+
           if (!/^[1-9]$/.test(value)) {
-              e.target.value = '';
-              sudokuBoard[row][col] = 0;
+            e.target.value = "";
+            sudokuBoard[row][col] = 0;
           } else {
-              const num = parseInt(value);
-              sudokuBoard[row][col] = num;
-              e.target.classList.add('user-filled');
+            const num = parseInt(value);
+            sudokuBoard[row][col] = num;
+            e.target.classList.add("user-filled");
           }
-          
+
           // Full revalidation
           validateAllCells();
-          
+
           // Check if puzzle is complete
           if (isPuzzleComplete()) {
-              validateFinalSolution();
+            validateFinalSolution();
           }
-      });
+        });
 
         cell.appendChild(input);
         row.appendChild(cell);
@@ -481,41 +490,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function checkSolution() {
-    if (!isPlaying) return;
-
-    // First check if all cells are filled
-    const inputs = document.querySelectorAll("#sudoku-board input");
-    const isComplete = Array.from(inputs).every((input) => input.value !== "");
-
-    if (!isComplete) {
-      alert("You haven't finished the puzzle yet!");
-      return;
-    }
-
-    // Now check for correctness
-    let isCorrect = true;
-    inputs.forEach((input) => {
-      const row = parseInt(input.dataset.row);
-      const col = parseInt(input.dataset.col);
-      const value = parseInt(input.value) || 0;
-
-      if (value !== solutionBoard[row][col]) {
-        isCorrect = false;
-        input.classList.add("incorrect");
-      }
-    });
-
-    if (isCorrect) {
-      alert("Congratulations! You solved the Sudoku correctly!");
-      stopTimer();
-      updateBestTime();
-      isPlaying = false;
-    } else {
-      alert("There are some incorrect numbers. Keep trying!");
-    }
-  }
-
   function showSolution() {
     if (!isPlaying) return;
 
@@ -600,73 +574,75 @@ document.addEventListener("DOMContentLoaded", function () {
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }
 
-function clearAllErrorStates() {
-    const inputs = document.querySelectorAll('#sudoku-board input');
-    inputs.forEach(input => {
-        input.classList.remove(
-            'error-state',
-            'last-error'
-        );
-        // Fixed cells keep their base styling
-        if (input.classList.contains('fixed')) {
-            input.classList.remove('error-state', 'last-error');
-        }
-    });
-}
+  // ======================
 
-function validateAllCells() {
+  function clearAllErrorStates() {
+    const inputs = document.querySelectorAll("#sudoku-board input");
+    inputs.forEach((input) => {
+      input.classList.remove("error-state", "last-error");
+      // Fixed cells keep their base styling
+      if (input.classList.contains("fixed")) {
+        input.classList.remove("error-state", "last-error");
+      }
+    });
+  }
+
+  function validateAllCells() {
     clearAllErrorStates();
-    
+
     if (!isPlaying) return;
-    
-    const lastCellId = lastEditedCell 
-        ? `input[data-row="${lastEditedCell.row}"][data-col="${lastEditedCell.col}"]` 
-        : null;
-    
+
+    const lastCellId = lastEditedCell
+      ? `input[data-row="${lastEditedCell.row}"][data-col="${lastEditedCell.col}"]`
+      : null;
+
     // Check all cells for conflicts
     for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-            const num = sudokuBoard[row][col];
-            if (num === 0) continue;
-            
-            if (hasConflict(row, col, num)) {
-                const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
-                if (input) {
-                    const isLastEdited = lastCellId === `input[data-row="${row}"][data-col="${col}"]`;
-                    
-                    if (isLastEdited) {
-                        input.classList.add('last-error');
-                    } else {
-                        input.classList.add('error-state');
-                    }
-                }
-            }
-        }
-    }
-}
+      for (let col = 0; col < 9; col++) {
+        const num = sudokuBoard[row][col];
+        if (num === 0) continue;
 
-function hasConflict(row, col, num) {
-  // Check row
-  for (let c = 0; c < 9; c++) {
-      if (c !== col && sudokuBoard[row][c] === num) return true;
-  }
-  
-  // Check column
-  for (let r = 0; r < 9; r++) {
-      if (r !== row && sudokuBoard[r][col] === num) return true;
-  }
-  
-  // Check box
-  const boxRow = Math.floor(row / 3) * 3;
-  const boxCol = Math.floor(col / 3) * 3;
-  for (let r = boxRow; r < boxRow + 3; r++) {
-      for (let c = boxCol; c < boxCol + 3; c++) {
-          if ((r !== row || c !== col) && sudokuBoard[r][c] === num) return true;
+        if (hasConflict(row, col, num)) {
+          const input = document.querySelector(
+            `input[data-row="${row}"][data-col="${col}"]`
+          );
+          if (input) {
+            const isLastEdited =
+              lastCellId === `input[data-row="${row}"][data-col="${col}"]`;
+
+            if (isLastEdited) {
+              input.classList.add("last-error");
+            } else {
+              input.classList.add("error-state");
+            }
+          }
+        }
       }
+    }
   }
-  
-  return false;
-}
+
+  function hasConflict(row, col, num) {
+    // Check row
+    for (let c = 0; c < 9; c++) {
+      if (c !== col && sudokuBoard[row][c] === num) return true;
+    }
+
+    // Check column
+    for (let r = 0; r < 9; r++) {
+      if (r !== row && sudokuBoard[r][col] === num) return true;
+    }
+
+    // Check box
+    const boxRow = Math.floor(row / 3) * 3;
+    const boxCol = Math.floor(col / 3) * 3;
+    for (let r = boxRow; r < boxRow + 3; r++) {
+      for (let c = boxCol; c < boxCol + 3; c++) {
+        if ((r !== row || c !== col) && sudokuBoard[r][c] === num) return true;
+      }
+    }
+
+    return false;
+  }
 
   function isPuzzleComplete() {
     for (let row = 0; row < 9; row++) {

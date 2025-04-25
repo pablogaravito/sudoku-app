@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Game elements
   const board = document.getElementById("sudoku-board");
   const newGameBtn = document.getElementById("new-game");
-  const checkSolutionBtn = document.getElementById("check-solution");
   const solveBtn = document.getElementById("solve");
   const difficultySelect = document.getElementById("difficulty");
   const timerDisplay = document.getElementById("timer");

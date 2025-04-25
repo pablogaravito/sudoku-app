@@ -31,7 +31,7 @@ body {
   
   /* Expanded state */
   .times-button.expanded {
-    width: 300px; /* Width when expanded */
+    width: 250px; /* Width when expanded */
   }
   
   /* Button content (always visible) */
@@ -71,7 +71,7 @@ body {
   
   /* Panel that shows the times (hidden by default) */
   .times-panel {
-    width: 260px;
+    width: 180px;
     background-color: #f0f0f0;
     overflow: hidden;
     flex-shrink: 0;

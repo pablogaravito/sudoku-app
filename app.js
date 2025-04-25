@@ -605,6 +605,32 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     }
   }
+  
+
+  // ======================
+  // NUM PAD FUNCTIONS
+  // ======================
+
+//   document.querySelectorAll('.number-btn').forEach(btn => {
+//     btn.addEventListener('click', () => {
+//         if (selectedCell && !selectedCell.classList.contains('fixed')) {
+//             const row = parseInt(selectedCell.dataset.row);
+//             const col = parseInt(selectedCell.dataset.col);
+            
+//             if (btn.dataset.num === 'clear') { // Clear button
+//                 selectedCell.textContent = ''; // Just clear the text
+//                 boardState[row][col] = 0;
+//             } else {
+//                 const num = parseInt(btn.dataset.num);
+//                 selectedCell.textContent = num;
+//                 boardState[row][col] = num;
+//             }
+            
+//             checkConflicts();
+//         }
+//     });
+// });
+
 
   //start game
 });

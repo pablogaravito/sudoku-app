@@ -71,47 +71,145 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize the Sudoku board UI
   function initializeBoard() {
     board.innerHTML = "";
-    for (let i = 0; i < 9; i++) {
-      const row = document.createElement("tr");
-      for (let j = 0; j < 9; j++) {
-        const cell = document.createElement("td");
-        const input = document.createElement("input");
-        input.type = "text";
-        input.maxLength = 1;
-        input.dataset.row = i;
-        input.dataset.col = j;
-
-        input.addEventListener("input", function (e) {
-          if (!isPlaying) return;
-
-          const value = e.target.value;
-          const row = parseInt(e.target.dataset.row);
-          const col = parseInt(e.target.dataset.col);
-
-          // Track last edited cell
-          lastEditedCell = { row, col };
-
-          if (!/^[1-9]$/.test(value)) {
-            e.target.value = "";
-            sudokuBoard[row][col] = 0;
-          } else {
-            const num = parseInt(value);
-            sudokuBoard[row][col] = num;
-            e.target.classList.add("user-filled");
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          
+          const value = initialPuzzle[row][col];
+          if (value !== 0) {
+              cell.textContent = value;
+              cell.classList.add('fixed');
           }
-
-          // Check if puzzle is complete
-          if (isPuzzleComplete()) {
-            validateFinalSolution();
-          }
-        });
-
-        cell.appendChild(input);
-        row.appendChild(cell);
+          
+          cell.addEventListener('click', () => selectCell(cell));
+          sudokuBoard.appendChild(cell);
       }
-      board.appendChild(row);
     }
   }
+
+  function selectCell(cell) {
+    // Remove selected class from all cells
+    document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+    
+    // Add selected class to the clicked cell
+    cell.classList.add('selected');
+    selectedCell = cell;
+}
+
+            // Set up number pad
+            document.querySelectorAll('.number-btn').forEach(btn => {
+              btn.addEventListener('click', () => {
+                  if (selectedCell && !selectedCell.classList.contains('fixed')) {
+                      const row = parseInt(selectedCell.dataset.row);
+                      const col = parseInt(selectedCell.dataset.col);
+                      
+                      if (btn.dataset.num === 'clear') { // Clear button
+                          selectedCell.textContent = ''; // Just clear the text
+                          boardState[row][col] = 0;
+                      } else {
+                          const num = parseInt(btn.dataset.num);
+                          selectedCell.textContent = num;
+                          boardState[row][col] = num;
+                      }
+                      
+                      checkConflicts();
+                  }
+              });
+          });
+
+          // Handle keyboard input
+          document.addEventListener('keydown', (e) => {
+              if (selectedCell && !selectedCell.classList.contains('fixed')) {
+                  const row = parseInt(selectedCell.dataset.row);
+                  const col = parseInt(selectedCell.dataset.col);
+                  
+                  if (e.key >= '1' && e.key <= '9') {
+                      const num = parseInt(e.key);
+                      selectedCell.textContent = num;
+                      boardState[row][col] = num;
+                      checkConflicts();
+                  } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+                      selectedCell.textContent = ''; // Just clear the text
+                      boardState[row][col] = 0;
+                      checkConflicts();
+                  }
+              }
+          });
+
+          // Function to select a cell
+          function selectCell(cell) {
+              // Remove selected class from all cells
+              document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+              
+              // Add selected class to the clicked cell
+              cell.classList.add('selected');
+              selectedCell = cell;
+          }
+
+          // Check for conflicts in the entire board
+          function checkConflicts() {
+              // Clear all conflict markings first
+              document.querySelectorAll('.cell').forEach(cell => {
+                  cell.classList.remove('conflict');
+              });
+              
+              // Check each cell for conflicts
+              for (let row = 0; row < 9; row++) {
+                  for (let col = 0; col < 9; col++) {
+                      const value = boardState[row][col];
+                      if (value === 0) continue; // Skip empty cells
+                      
+                      // Check if this value causes any conflicts
+                      if (hasConflict(row, col, value)) {
+                          const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                          cell.classList.add('conflict');
+                      }
+                  }
+              }
+          }
+
+          // Check if placing value at row,col creates a conflict
+          function hasConflict(row, col, value) {
+              // Check row
+              for (let c = 0; c < 9; c++) {
+                  if (c !== col && boardState[row][c] === value) {
+                      // Mark both cells as conflicts
+                      const otherCell = document.querySelector(`.cell[data-row="${row}"][data-col="${c}"]`);
+                      otherCell.classList.add('conflict');
+                      return true;
+                  }
+              }
+              
+              // Check column
+              for (let r = 0; r < 9; r++) {
+                  if (r !== row && boardState[r][col] === value) {
+                      // Mark both cells as conflicts
+                      const otherCell = document.querySelector(`.cell[data-row="${r}"][data-col="${col}"]`);
+                      otherCell.classList.add('conflict');
+                      return true;
+                  }
+              }
+              
+              // Check 3x3 box
+              const boxRow = Math.floor(row / 3) * 3;
+              const boxCol = Math.floor(col / 3) * 3;
+              
+              for (let r = boxRow; r < boxRow + 3; r++) {
+                  for (let c = boxCol; c < boxCol + 3; c++) {
+                      if ((r !== row || c !== col) && boardState[r][c] === value) {
+                          // Mark both cells as conflicts
+                          const otherCell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+                          otherCell.classList.add('conflict');
+                          return true;
+                      }
+                  }
+              }
+              
+              return false;
+          }
 
   function startNewGame() {
     try {

@@ -250,7 +250,7 @@ select {
 }
 
 /* Incorrect cells */
-.incorrect {
+.error {
     color: #f44336;
 }
 
@@ -289,25 +289,6 @@ select {
 
 #sudoku-board input.correct {
     background-color: #ddffdd;
-}
-
-
-/* Error states styling */
-#sudoku-board input.error-state {
-    color: #d32f2f !important;
-    background-color: #ffebee !important;
-}
-
-#sudoku-board input.last-error {
-    font-weight: bold;
-    animation: pulse 0.5s;
-    z-index: 1;
-}
-
-#sudoku-board input.fixed-error {
-    color: #ff8f00 !important;
-    background-color: #f0f0f0 !important;
-    /* background-color: #fff3e0 !important; */
 }
 
 .number-pad-container {

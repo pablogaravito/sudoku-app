@@ -11,7 +11,9 @@ export default function NumberPad({
   onHint,
   notesMode,
   canUndo,
-  remainingCounts, // { 1: 3, 2: 0, ... } how many of each digit are still needed
+  hintsLeft,
+  hintsAllowed,
+  remainingCounts,
 }) {
   return (
     <div className={styles.pad}>
@@ -64,11 +66,11 @@ export default function NumberPad({
           <span>Notes{notesMode ? ' ON' : ''}</span>
         </button>
 
-        <button className={styles.actionBtn} onClick={onHint} title="Reveal this cell">
+        <button className={styles.actionBtn} onClick={onHint} disabled={hintsLeft === 0} title={`Hint (${hintsLeft}/${hintsAllowed} left)`}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
           </svg>
-          <span>Hint</span>
+          <span>Hint {hintsLeft !== undefined ? `${hintsLeft}/${hintsAllowed}` : ''}</span>
         </button>
       </div>
     </div>

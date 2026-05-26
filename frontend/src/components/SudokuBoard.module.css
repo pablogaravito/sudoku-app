@@ -1,0 +1,60 @@
+.board {
+  position: relative; /* needed for the overlay lines */
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+
+  font-size: clamp(28px, 5.5vw, 52px);
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1;
+
+  background: var(--cell-border-box);
+  border: 2px solid var(--cell-border-box);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  gap: 1px;
+}
+
+/* Draw the 2 vertical box separator lines */
+.board::before,
+.board::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--cell-border-box);
+  z-index: 1;
+  pointer-events: none;
+}
+.board::before {
+  left: calc(100% / 3);
+}
+.board::after {
+  left: calc(200% / 3);
+}
+
+/* We need 2 horizontal lines too — use a wrapper div trick in the JSX */
+.boardInner {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.boardInner::before,
+.boardInner::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--cell-border-box);
+}
+.boardInner::before {
+  top: calc(100% / 3);
+}
+.boardInner::after {
+  top: calc(200% / 3);
+}

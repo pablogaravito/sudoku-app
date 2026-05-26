@@ -1,0 +1,25 @@
+/* ThemeToggle.module.css */
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.label {
+  line-height: 1;
+}

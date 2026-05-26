@@ -1,0 +1,82 @@
+/* SudokuCell.module.css
+ *
+ * REACT CONCEPT: CSS Modules
+ * These class names (.cell, .given, etc.) are locally scoped to this component.
+ * Vite transforms them to unique names like "SudokuCell_cell__x7q2a" at build
+ * time — so even if another component also has a class called ".cell", they
+ * won't collide. You get the simplicity of plain CSS with zero naming conflicts.
+ */
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cell-bg);
+  cursor: pointer;
+  transition: background 0.1s ease;
+  user-select: none;
+  aspect-ratio: 1;
+  /* No border — the gap + board background handles it */
+}
+
+/* Thick box separators: add extra gap after cols 3 and 6, rows 3 and 6.
+   We do this by making every 3rd cell have a thicker right/bottom margin
+   using box-shadow on the board background side */
+
+/* ── Cell states ────────────────────────────────────────────────────────────── */
+.given {
+  background: var(--cell-bg-given);
+  cursor: default;
+}
+.selected {
+  background: var(--cell-bg-selected) !important;
+}
+.peer {
+  background: var(--cell-bg-peer);
+}
+.sameNum {
+  background: var(--cell-bg-same-num);
+}
+.error {
+  background: var(--cell-bg-error);
+}
+
+/* ── Value text ─────────────────────────────────────────────────────────────── */
+.value {
+  font-family: var(--font-mono);
+  /* Font size is relative to the cell — we'll set cell size in the board */
+  font-size: 0.55em;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--cell-text-player);
+}
+
+.given .value {
+  color: var(--cell-text-given);
+  font-weight: 600;
+}
+
+.error .value {
+  color: var(--cell-text-error);
+}
+
+/* ── Notes (pencil marks) ───────────────────────────────────────────────────── */
+.notes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 90%;
+  height: 90%;
+  gap: 0;
+}
+
+.noteDigit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.22em;
+  color: var(--cell-text-note);
+  line-height: 1;
+}

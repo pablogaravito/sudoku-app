@@ -1,0 +1,130 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap");
+
+/* ─── Light theme (default) ────────────────────────────────────────────────── */
+:root {
+  --font-sans: "DM Sans", sans-serif;
+  --font-mono: "DM Mono", monospace;
+
+  --bg-page: #f0ede8;
+  --bg-surface: #faf9f7;
+  --bg-card: #ffffff;
+
+  --cell-bg: #ffffff;
+  --cell-bg-given: #ebe8e2;
+  --cell-bg-selected: #dbeafe;
+  --cell-bg-peer: #f0f5ff;
+  --cell-bg-error: #fee2e2;
+  --cell-bg-same-num: #e0e7ff;
+
+  --cell-border: #ccc8c0;
+  --cell-border-box: #5a5650;
+
+  --cell-text-given: #1e1b18;
+  --cell-text-player: #2563eb;
+  --cell-text-error: #dc2626;
+  --cell-text-note: #6b7280;
+
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-text: #1e1b18;
+  --color-text-muted: #6b6860;
+  --color-border: #d4d0c8;
+
+  --diff-easy: #16a34a;
+  --diff-medium: #d97706;
+  --diff-hard: #dc2626;
+  --diff-expert: #7c3aed;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Dark theme via data-theme attribute (set by useTheme hook) ────────────── */
+[data-theme="dark"] {
+  --bg-page: #18181b;
+  --bg-surface: #202024;
+  --bg-card: #28282d;
+
+  --cell-bg: #2a2a30;
+  --cell-bg-given: #1e1e24;
+  --cell-bg-selected: #1a3557;
+  --cell-bg-peer: #232830;
+  --cell-bg-error: #3b1212;
+  --cell-bg-same-num: #1c2a47;
+
+  --cell-border: #42424a;
+  --cell-border-box: #9090a0;
+
+  --cell-text-given: #e8e8f0;
+  --cell-text-player: #7eb8f7;
+  --cell-text-error: #f87171;
+  --cell-text-note: #8888a0;
+
+  --color-primary: #4a90e2;
+  --color-primary-hover: #357abd;
+  --color-text: #e8e8f0;
+  --color-text-muted: #9090a0;
+  --color-border: #42424a;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ─── OS dark preference (only when no explicit theme is set) ───────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --bg-page: #18181b;
+    --bg-surface: #202024;
+    --bg-card: #28282d;
+
+    --cell-bg: #2a2a30;
+    --cell-bg-given: #1e1e24;
+    --cell-bg-selected: #1a3557;
+    --cell-bg-peer: #232830;
+    --cell-bg-error: #3b1212;
+    --cell-bg-same-num: #1c2a47;
+
+    --cell-border: #42424a;
+    --cell-border-box: #9090a0;
+
+    --cell-text-given: #e8e8f0;
+    --cell-text-player: #7eb8f7;
+    --cell-text-error: #f87171;
+    --cell-text-note: #8888a0;
+
+    --color-primary: #4a90e2;
+    --color-primary-hover: #357abd;
+    --color-text: #e8e8f0;
+    --color-text-muted: #9090a0;
+    --color-border: #42424a;
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ─── Reset & base ─────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-page);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}

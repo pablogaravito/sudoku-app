@@ -1,60 +1,65 @@
+/* SudokuBoard.module.css */
+
 .board {
-  position: relative; /* needed for the overlay lines */
+  position: relative;
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
 
-  font-size: clamp(28px, 5.5vw, 52px);
+  /* Bump font-size up so digits fill more of the cell.
+   * All child font sizes (0.55em, 0.22em) scale automatically. */
+  font-size: clamp(32px, 6.5vw, 58px);
+
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   aspect-ratio: 1;
 
-  background: var(--cell-border-box);
-  border: 2px solid var(--cell-border-box);
+  /* Thin cell borders via gap — board background color shows through */
+  background: var(--cell-border);
+  gap: 1px;
+
+  /* Outer board border */
+  border: 2.5px solid var(--cell-border-box);
   border-radius: var(--radius-sm);
   overflow: hidden;
+
   box-shadow: var(--shadow-card);
-  gap: 1px;
 }
 
-/* Draw the 2 vertical box separator lines */
+/* ── Box separator overlay ───────────────────────────────────────────────────
+ * We draw 2 vertical + 2 horizontal thick lines on top of the grid at exactly
+ * 1/3 and 2/3 positions. Much cleaner than per-cell border tricks.
+ * boardInner is a zero-size div rendered as the first child of .board.
+ */
+
+/* 2 vertical lines */
 .board::before,
 .board::after {
-  content: "";
+  content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 0; bottom: 0;
   width: 2px;
   background: var(--cell-border-box);
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
 }
-.board::before {
-  left: calc(100% / 3);
-}
-.board::after {
-  left: calc(200% / 3);
-}
+.board::before { left: calc(100% / 3); transform: translateX(-50%); }
+.board::after  { left: calc(200% / 3); transform: translateX(-50%); }
 
-/* We need 2 horizontal lines too — use a wrapper div trick in the JSX */
+/* 2 horizontal lines via boardInner div */
 .boardInner {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 .boardInner::before,
 .boardInner::after {
-  content: "";
+  content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 0; right: 0;
   height: 2px;
   background: var(--cell-border-box);
 }
-.boardInner::before {
-  top: calc(100% / 3);
-}
-.boardInner::after {
-  top: calc(200% / 3);
-}
+.boardInner::before { top: calc(100% / 3);  transform: translateY(-50%); }
+.boardInner::after  { top: calc(200% / 3); transform: translateY(-50%); }

@@ -13,40 +13,30 @@
   align-items: center;
   justify-content: center;
   background: var(--cell-bg);
+  /* No border — gap + board background handles thin lines */
   cursor: pointer;
   transition: background 0.1s ease;
   user-select: none;
   aspect-ratio: 1;
-  /* No border — the gap + board background handles it */
 }
 
-/* Thick box separators: add extra gap after cols 3 and 6, rows 3 and 6.
-   We do this by making every 3rd cell have a thicker right/bottom margin
-   using box-shadow on the board background side */
+.cell:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  z-index: 1;
+}
 
 /* ── Cell states ────────────────────────────────────────────────────────────── */
-.given {
-  background: var(--cell-bg-given);
-  cursor: default;
-}
-.selected {
-  background: var(--cell-bg-selected) !important;
-}
-.peer {
-  background: var(--cell-bg-peer);
-}
-.sameNum {
-  background: var(--cell-bg-same-num);
-}
-.error {
-  background: var(--cell-bg-error);
-}
+.given    { background: var(--cell-bg-given); cursor: default; }
+.selected { background: var(--cell-bg-selected) !important; }
+.peer     { background: var(--cell-bg-peer); }
+.sameNum  { background: var(--cell-bg-same-num); }
+.error    { background: var(--cell-bg-error); }
 
 /* ── Value text ─────────────────────────────────────────────────────────────── */
 .value {
   font-family: var(--font-mono);
-  /* Font size is relative to the cell — we'll set cell size in the board */
-  font-size: 0.55em;
+  font-size: 0.68em;   /* was 0.55em — fills ~68% of cell height */
   font-weight: 500;
   line-height: 1;
   color: var(--cell-text-player);
@@ -66,8 +56,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  width: 90%;
-  height: 90%;
+  width: 92%;
+  height: 92%;
   gap: 0;
 }
 
@@ -76,7 +66,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 0.22em;
+  font-size: 0.26em;   /* slightly bigger notes too */
   color: var(--cell-text-note);
   line-height: 1;
 }

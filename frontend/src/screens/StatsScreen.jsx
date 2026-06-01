@@ -32,15 +32,16 @@ function StatRow({ label, value }) {
 }
 
 function DiffStats({ d }) {
-  if (!d || !(d.won ?? d.played)) {
+  const won  = d?.won ?? d?.played ?? 0;
+  const lost = d?.lost ?? 0;
+
+  if (!d || (won + lost) === 0) {
     return (
       <div className={styles.empty}>
         No completed games yet for this difficulty.
       </div>
     );
   }
-  const won    = d.won ?? d.played ?? 0;
-  const lost   = d.lost ?? 0;
   const played = won + lost; // total completed (finished or abandoned)
 
   return (
@@ -129,7 +130,7 @@ export default function StatsScreen({ onBack, theme }) {
     }
   };
 
-  const hasAnyStats = stats && Object.values(stats).some(d => (d?.won ?? d?.played ?? 0) > 0);
+  const hasAnyStats = stats && Object.values(stats).some(d => ((d?.won ?? d?.played ?? 0) + (d?.lost ?? 0)) > 0);
 
   return (
     <div className={styles.screen}>

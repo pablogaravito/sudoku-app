@@ -1,11 +1,9 @@
-/* StatsScreen.module.css */
-
 .screen {
   min-height: 100%;
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1.25rem;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .header {
@@ -30,86 +28,103 @@
   font-weight: 500;
 }
 
-.empty {
-  flex: 1;
+/* ── Tabs ───────────────────────────────────────────────────────────────────── */
+.tabs {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 8px;
-  color: var(--color-text-muted);
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.card {
+.tab {
+  flex-shrink: 0;
+  padding: 7px 14px;
   background: var(--bg-card);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 1rem 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab:hover {
+  color: var(--tab-color);
+  border-color: var(--tab-color);
+}
+
+.tabActive {
+  background: color-mix(in srgb, var(--tab-color) 10%, var(--bg-card));
+  border-color: var(--tab-color);
+  color: var(--tab-color);
+}
+
+/* ── Stats grid ─────────────────────────────────────────────────────────────── */
+.content {
+  flex: 1;
+}
+
+.empty {
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.statsGroup {
+  background: var(--bg-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
   box-shadow: var(--shadow-card);
 }
 
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.diffName {
+.groupLabel {
+  font-size: 11px;
   font-weight: 600;
-  font-size: 15px;
-  text-transform: capitalize;
-}
-
-.played {
-  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--color-text-muted);
+  margin-bottom: 10px;
 }
 
 .statRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 0;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.statRow:last-child {
+  border-bottom: none;
 }
 
 .statLabel {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-muted);
 }
 
 .statValue {
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
 }
 
-.clearBtn {
-  background: none;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  color: #dc2626;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.clearBtn:hover { background: #fee2e2; border-color: #dc2626; }
-
-/* Export / Import section */
+/* ── Backup section ─────────────────────────────────────────────────────────── */
 .transferSection {
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -140,10 +155,17 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.transferBtn:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
-.transferBtn:disabled { opacity: 0.4; cursor: default; }
+.transferBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.transferBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 
-.exportBox, .importBox {
+.exportBox,
+.importBox {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -184,8 +206,33 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.copyBtn:hover { background: var(--color-primary-hover); }
+.copyBtn:hover {
+  background: var(--color-primary-hover);
+}
 
-.importMsg { font-size: 13px; font-weight: 500; }
-.ok  { color: #16a34a; }
-.err { color: #dc2626; }
+.importMsg {
+  font-size: 13px;
+  font-weight: 500;
+}
+.ok {
+  color: #16a34a;
+}
+.err {
+  color: #dc2626;
+}
+
+.clearBtn {
+  background: none;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  color: #dc2626;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.clearBtn:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}

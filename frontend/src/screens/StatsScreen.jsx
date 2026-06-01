@@ -1,28 +1,95 @@
-import { useState, useEffect } from 'react';
-import ThemeToggle from '../components/ThemeToggle';
-import { encodeStats, decodeStats } from '../logic/statsCodec';
-import styles from './StatsScreen.module.css';
+import { useState, useEffect } from "react";
+import ThemeToggle from "../components/ThemeToggle";
+import { encodeStats, decodeStats } from "../logic/statsCodec";
+import styles from "./StatsScreen.module.css";
 
-const DIFFICULTIES = ['easy', 'medium', 'hard', 'expert'];
-const DIFF_COLORS  = { easy: '#16a34a', medium: '#d97706', hard: '#dc2626', expert: '#7c3aed' };
-const STATS_KEY    = 'sudoku-stats';
+const DIFFICULTIES = ["easy", "medium", "hard", "expert", "insane"];
+const DIFF_COLORS = {
+  easy: "#16a34a",
+  medium: "#d97706",
+  hard: "#dc2626",
+  expert: "#7c3aed",
+  insane: "#be123c",
+};
+const STATS_KEY = "sudoku-stats";
 
 function formatTime(seconds) {
+  if (!seconds || !isFinite(seconds)) return "—";
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function pct(a, b) {
+  if (!b) return "—";
+  return `${Math.round((a / b) * 100)}%`;
+}
+
+function StatRow({ label, value }) {
+  return (
+    <div className={styles.statRow}>
+      <span className={styles.statLabel}>{label}</span>
+      <span className={styles.statValue}>{value ?? "—"}</span>
+    </div>
+  );
+}
+
+function DiffStats({ d }) {
+  if (!d || d.won === 0) {
+    return (
+      <div className={styles.empty}>
+        No completed games yet for this difficulty.
+      </div>
+    );
+  }
+  return (
+    <div className={styles.statsGrid}>
+      <div className={styles.statsGroup}>
+        <p className={styles.groupLabel}>Games</p>
+        <StatRow label="Started" value={d.started ?? d.won} />
+        <StatRow label="Won" value={d.won} />
+        <StatRow label="Win rate" value={pct(d.won, d.started ?? d.won)} />
+        <StatRow
+          label="Won with no hints"
+          value={pct(d.winsNoHints ?? 0, d.won)}
+        />
+      </div>
+      <div className={styles.statsGroup}>
+        <p className={styles.groupLabel}>Time</p>
+        <StatRow label="Best time" value={formatTime(d.best)} />
+        <StatRow
+          label="Average time"
+          value={formatTime(Math.round(d.totalTime / d.won))}
+        />
+      </div>
+      <div className={styles.statsGroup}>
+        <p className={styles.groupLabel}>Streaks</p>
+        <StatRow label="Current streak" value={d.currentStreak ?? 0} />
+        <StatRow label="Longest streak" value={d.longestStreak ?? 0} />
+      </div>
+      <div className={styles.statsGroup}>
+        <p className={styles.groupLabel}>Hints</p>
+        <StatRow label="Total hints used" value={d.totalHints ?? 0} />
+        <StatRow
+          label="Clean wins"
+          value={`${d.winsNoHints ?? 0} of ${d.won}`}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function StatsScreen({ onBack, theme }) {
-  const [stats, setStats]           = useState(null);
-  const [exported, setExported]     = useState('');
-  const [importText, setImportText] = useState('');
-  const [importMsg, setImportMsg]   = useState(null); // { ok: bool, text: string }
+  const [stats, setStats] = useState(null);
+  const [activeTab, setActiveTab] = useState("easy");
+  const [exported, setExported] = useState("");
+  const [importText, setImportText] = useState("");
+  const [importMsg, setImportMsg] = useState(null);
   const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     const raw = localStorage.getItem(STATS_KEY);
-    setStats(raw ? JSON.parse(raw) : null);
+    setStats(raw ? JSON.parse(raw) : {});
   }, []);
 
   const handleExport = () => {
@@ -33,18 +100,27 @@ export default function StatsScreen({ onBack, theme }) {
   const handleImport = () => {
     const decoded = decodeStats(importText);
     if (!decoded) {
-      setImportMsg({ ok: false, text: 'Invalid code — make sure you copied it fully.' });
+      setImportMsg({
+        ok: false,
+        text: "Invalid code — make sure you copied it fully.",
+      });
       return;
     }
-    // Merge: keep the better record for each difficulty
     const current = stats || {};
-    const merged  = { ...decoded };
+    const merged = { ...decoded };
     for (const diff of DIFFICULTIES) {
       if (current[diff] && decoded[diff]) {
+        const a = current[diff],
+          b = decoded[diff];
         merged[diff] = {
-          played:    current[diff].played    + decoded[diff].played,
-          totalTime: current[diff].totalTime + decoded[diff].totalTime,
-          best:      Math.min(current[diff].best, decoded[diff].best),
+          started: (a.started ?? 0) + (b.started ?? 0),
+          won: (a.won ?? 0) + (b.won ?? 0),
+          totalTime: (a.totalTime ?? 0) + (b.totalTime ?? 0),
+          best: Math.min(a.best ?? Infinity, b.best ?? Infinity),
+          winsNoHints: (a.winsNoHints ?? 0) + (b.winsNoHints ?? 0),
+          totalHints: (a.totalHints ?? 0) + (b.totalHints ?? 0),
+          currentStreak: Math.max(a.currentStreak ?? 0, b.currentStreak ?? 0),
+          longestStreak: Math.max(a.longestStreak ?? 0, b.longestStreak ?? 0),
         };
       } else {
         merged[diff] = current[diff] || decoded[diff];
@@ -52,75 +128,69 @@ export default function StatsScreen({ onBack, theme }) {
     }
     localStorage.setItem(STATS_KEY, JSON.stringify(merged));
     setStats(merged);
-    setImportMsg({ ok: true, text: 'Stats imported and merged successfully!' });
-    setImportText('');
+    setImportMsg({ ok: true, text: "Stats imported and merged successfully!" });
+    setImportText("");
     setShowImport(false);
   };
 
   const handleClear = () => {
-    if (window.confirm('Clear all stats? This cannot be undone.')) {
+    if (window.confirm("Clear all stats? This cannot be undone.")) {
       localStorage.removeItem(STATS_KEY);
-      setStats(null);
-      setExported('');
+      setStats({});
+      setExported("");
     }
   };
 
-  const hasStats = stats && Object.values(stats).some(d => d?.played > 0);
+  const hasAnyStats = stats && Object.values(stats).some((d) => d?.won > 0);
 
   return (
     <div className={styles.screen}>
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={onBack}>← Back</button>
+        <button className={styles.backBtn} onClick={onBack}>
+          ← Back
+        </button>
         <h1 className={styles.title}>Stats</h1>
         <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
       </header>
 
-      {!hasStats ? (
-        <div className={styles.empty}>
-          <p>No games completed yet.</p>
-          <p>Finish your first puzzle to see stats here!</p>
-        </div>
-      ) : (
-        <div className={styles.content}>
-          {DIFFICULTIES.map(diff => {
-            const d = stats?.[diff];
-            if (!d || d.played === 0) return null;
-            return (
-              <div key={diff} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <span className={styles.diffName} style={{ color: DIFF_COLORS[diff] }}>
-                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
-                  </span>
-                  <span className={styles.played}>{d.played} game{d.played !== 1 ? 's' : ''}</span>
-                </div>
-                <div className={styles.statRow}>
-                  <span className={styles.statLabel}>Best time</span>
-                  <span className={styles.statValue}>{formatTime(d.best)}</span>
-                </div>
-                <div className={styles.statRow}>
-                  <span className={styles.statLabel}>Average time</span>
-                  <span className={styles.statValue}>{formatTime(Math.round(d.totalTime / d.played))}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Difficulty tabs */}
+      <div className={styles.tabs} role="tablist">
+        {DIFFICULTIES.map((diff) => (
+          <button
+            key={diff}
+            role="tab"
+            aria-selected={activeTab === diff}
+            className={`${styles.tab} ${activeTab === diff ? styles.tabActive : ""}`}
+            style={{ "--tab-color": DIFF_COLORS[diff] }}
+            onClick={() => setActiveTab(diff)}
+          >
+            {diff.charAt(0).toUpperCase() + diff.slice(1)}
+          </button>
+        ))}
+      </div>
 
-      {/* Export / Import */}
+      {/* Stats for active tab */}
+      <div className={styles.content}>
+        <DiffStats d={stats?.[activeTab]} />
+      </div>
+
+      {/* Backup section */}
       <div className={styles.transferSection}>
-        <p className={styles.sectionLabel}>backup & restore</p>
+        <p className={styles.sectionLabel}>backup &amp; restore</p>
         <div className={styles.transferBtns}>
           <button
             className={styles.transferBtn}
             onClick={handleExport}
-            disabled={!hasStats}
+            disabled={!hasAnyStats}
           >
             Export stats
           </button>
           <button
             className={styles.transferBtn}
-            onClick={() => { setShowImport(v => !v); setImportMsg(null); }}
+            onClick={() => {
+              setShowImport((v) => !v);
+              setImportMsg(null);
+            }}
           >
             Import stats
           </button>
@@ -128,16 +198,19 @@ export default function StatsScreen({ onBack, theme }) {
 
         {exported && (
           <div className={styles.exportBox}>
-            <p className={styles.exportLabel}>Copy this code and save it somewhere safe:</p>
+            <p className={styles.exportLabel}>
+              Copy this code and save it somewhere safe:
+            </p>
             <textarea
               className={styles.codeArea}
               readOnly
               value={exported}
-              onClick={e => e.target.select()}
+              onClick={(e) => e.target.select()}
             />
-            <button className={styles.copyBtn} onClick={() => {
-              navigator.clipboard.writeText(exported);
-            }}>
+            <button
+              className={styles.copyBtn}
+              onClick={() => navigator.clipboard.writeText(exported)}
+            >
               Copy to clipboard
             </button>
           </div>
@@ -149,11 +222,13 @@ export default function StatsScreen({ onBack, theme }) {
             <textarea
               className={styles.codeArea}
               value={importText}
-              onChange={e => setImportText(e.target.value)}
+              onChange={(e) => setImportText(e.target.value)}
               placeholder="Paste code here..."
             />
             {importMsg && (
-              <p className={`${styles.importMsg} ${importMsg.ok ? styles.ok : styles.err}`}>
+              <p
+                className={`${styles.importMsg} ${importMsg.ok ? styles.ok : styles.err}`}
+              >
                 {importMsg.text}
               </p>
             )}
@@ -168,7 +243,7 @@ export default function StatsScreen({ onBack, theme }) {
         )}
       </div>
 
-      {hasStats && (
+      {hasAnyStats && (
         <button className={styles.clearBtn} onClick={handleClear}>
           Clear all stats
         </button>

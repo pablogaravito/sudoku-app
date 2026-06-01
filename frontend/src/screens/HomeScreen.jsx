@@ -1,22 +1,23 @@
-import { useState, useEffect } from 'react';
-import ThemeToggle from '../components/ThemeToggle';
-import { hasSavedGame } from '../hooks/useSudokuGame';
-import styles from './HomeScreen.module.css';
+import { useState, useEffect } from "react";
+import ThemeToggle from "../components/ThemeToggle";
+import { hasSavedGame } from "../hooks/useSudokuGame";
+import styles from "./HomeScreen.module.css";
 
 const DIFFICULTIES = [
-  { key: 'easy',   label: 'Easy',   desc: '~45 clues', color: '#16a34a' },
-  { key: 'medium', label: 'Medium', desc: '~35 clues', color: '#d97706' },
-  { key: 'hard',   label: 'Hard',   desc: '~29 clues', color: '#dc2626' },
-  { key: 'expert', label: 'Expert', desc: '~23 clues', color: '#7c3aed' },
+  { key: "easy", label: "Easy", desc: "~45 clues", color: "#16a34a" },
+  { key: "medium", label: "Medium", desc: "~35 clues", color: "#d97706" },
+  { key: "hard", label: "Hard", desc: "~29 clues", color: "#dc2626" },
+  { key: "expert", label: "Expert", desc: "~29 clues", color: "#7c3aed" },
+  { key: "insane", label: "Insane", desc: "~23 clues", color: "#be123c" },
 ];
 
 export default function HomeScreen({ onStart, onResume, onViewStats, theme }) {
-  const [selected, setSelected] = useState('medium');
+  const [selected, setSelected] = useState("medium");
   const [savedDiff, setSavedDiff] = useState(null);
 
   // Check localStorage for any saved game on mount
   useEffect(() => {
-    const found = DIFFICULTIES.map(d => d.key).find(d => hasSavedGame(d));
+    const found = DIFFICULTIES.map((d) => d.key).find((d) => hasSavedGame(d));
     setSavedDiff(found ?? null);
   }, []);
 
@@ -39,7 +40,10 @@ export default function HomeScreen({ onStart, onResume, onViewStats, theme }) {
             <span className={styles.resumeLabel}>Saved game</span>
             <span className={styles.resumeDiff}>{savedDiff}</span>
           </div>
-          <button className={styles.resumeBtn} onClick={() => onResume(savedDiff)}>
+          <button
+            className={styles.resumeBtn}
+            onClick={() => onResume(savedDiff)}
+          >
             Resume →
           </button>
         </div>
@@ -51,8 +55,8 @@ export default function HomeScreen({ onStart, onResume, onViewStats, theme }) {
           {DIFFICULTIES.map(({ key, label, desc, color }) => (
             <button
               key={key}
-              className={`${styles.diffBtn} ${selected === key ? styles.diffSelected : ''}`}
-              style={{ '--diff-color': color }}
+              className={`${styles.diffBtn} ${selected === key ? styles.diffSelected : ""}`}
+              style={{ "--diff-color": color }}
               onClick={() => setSelected(key)}
               aria-pressed={selected === key}
             >

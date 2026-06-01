@@ -34,7 +34,10 @@
   font-size: 1rem;
 }
 
-.section { width: 100%; max-width: 400px; }
+.section {
+  width: 100%;
+  max-width: 400px;
+}
 
 .sectionLabel {
   font-size: 11px;
@@ -47,7 +50,7 @@
 
 .difficultyGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
 
@@ -64,7 +67,9 @@
   box-shadow: var(--shadow-card);
 }
 
-.diffBtn:hover { border-color: var(--diff-color); }
+.diffBtn:hover {
+  border-color: var(--diff-color);
+}
 
 .diffSelected {
   border-color: var(--diff-color) !important;
@@ -96,12 +101,18 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  transition:
+    background 0.15s,
+    transform 0.1s;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.playBtn:hover  { background: var(--color-primary-hover); }
-.playBtn:active { transform: scale(0.98); }
+.playBtn:hover {
+  background: var(--color-primary-hover);
+}
+.playBtn:active {
+  transform: scale(0.98);
+}
 
 .statsLink {
   background: none;
@@ -114,7 +125,9 @@
   text-underline-offset: 3px;
 }
 
-.statsLink:hover { color: var(--color-text); }
+.statsLink:hover {
+  color: var(--color-text);
+}
 
 /* Resume banner */
 .resumeBanner {
@@ -163,4 +176,6 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.resumeBtn:hover { background: var(--color-primary-hover); }
+.resumeBtn:hover {
+  background: var(--color-primary-hover);
+}

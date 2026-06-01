@@ -25,8 +25,11 @@
 }
 
 .iconBtn {
-  width: 40px; height: 40px;
-  display: flex; align-items: center; justify-content: center;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--bg-card);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -34,7 +37,9 @@
   color: var(--color-text);
   transition: background 0.1s;
 }
-.iconBtn:hover { background: var(--bg-surface); }
+.iconBtn:hover {
+  background: var(--bg-surface);
+}
 
 .meta {
   display: flex;
@@ -59,9 +64,16 @@
 }
 
 /* Board pause state */
-.boardWrapper { position: relative; width: 100%; max-width: 480px; }
+.boardWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+}
 
-.paused > :not(.pauseOverlay) { filter: blur(6px); pointer-events: none; }
+.paused > :not(.pauseOverlay) {
+  filter: blur(6px);
+  pointer-events: none;
+}
 
 .pauseOverlay {
   position: absolute;
@@ -75,7 +87,8 @@
 }
 
 .pauseOverlay span {
-  background: rgba(255,255,255,0.9);
+  background: var(--bg-card);
+  color: var(--color-text);
   padding: 10px 20px;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -88,7 +101,7 @@
 .winOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,15 +114,32 @@
   border-radius: var(--radius-lg);
   padding: 2.5rem 2rem;
   text-align: center;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
   max-width: 320px;
   width: 100%;
 }
 
-.winEmoji { font-size: 3rem; margin-bottom: 0.75rem; }
-.winTitle { font-size: 1.75rem; font-weight: 600; margin-bottom: 0.5rem; }
-.winTime  { font-family: var(--font-mono); font-size: 2rem; font-weight: 500; color: var(--color-primary); }
-.winDiff  { font-size: 13px; color: var(--color-text-muted); text-transform: capitalize; margin-top: 4px; }
+.winEmoji {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+.winTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.winTime {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+.winDiff {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+  margin-top: 4px;
+}
 
 .winActions {
   display: flex;
@@ -130,7 +160,9 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.winBtn:hover { background: var(--color-primary-hover); }
+.winBtn:hover {
+  background: var(--color-primary-hover);
+}
 
 .winBtnSecondary {
   padding: 13px;
@@ -143,13 +175,16 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.winBtnSecondary:hover { border-color: var(--color-text); color: var(--color-text); }
+.winBtnSecondary:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
 
 /* ── Leave confirmation modal ───────────────────────────────────────────────── */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +198,7 @@
   padding: 2rem 1.75rem;
   max-width: 320px;
   width: 100%;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
 }
 
 .modalTitle {
@@ -197,7 +232,9 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.modalBtnPrimary:hover { background: var(--color-primary-hover); }
+.modalBtnPrimary:hover {
+  background: var(--color-primary-hover);
+}
 
 .modalBtnDanger {
   padding: 13px;
@@ -210,7 +247,9 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.modalBtnDanger:hover { background: #fee2e2; }
+.modalBtnDanger:hover {
+  background: #fee2e2;
+}
 
 .modalBtnSecondary {
   padding: 13px;
@@ -223,7 +262,10 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.modalBtnSecondary:hover { color: var(--color-text); border-color: var(--color-text); }
+.modalBtnSecondary:hover {
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
 
 .winHints {
   font-size: 13px;

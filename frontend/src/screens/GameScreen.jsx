@@ -1,25 +1,36 @@
-import { useEffect, useState } from 'react';
-import { useSudokuGame, saveGame, deleteSavedGame } from '../hooks/useSudokuGame';
-import { useTimer } from '../hooks/useTimer';
-import SudokuBoard from '../components/SudokuBoard';
-import NumberPad from '../components/NumberPad';
-import ThemeToggle from '../components/ThemeToggle';
-import styles from './GameScreen.module.css';
+import { useEffect, useState } from "react";
+import {
+  useSudokuGame,
+  saveGame,
+  deleteSavedGame,
+} from "../hooks/useSudokuGame";
+import { useTimer } from "../hooks/useTimer";
+import SudokuBoard from "../components/SudokuBoard";
+import NumberPad from "../components/NumberPad";
+import ThemeToggle from "../components/ThemeToggle";
+import styles from "./GameScreen.module.css";
 
 function getRemainingCounts(board) {
-  const counts = { 1:9, 2:9, 3:9, 4:9, 5:9, 6:9, 7:9, 8:9, 9:9 };
-  for (const row of board)
-    for (const val of row)
-      if (val > 0) counts[val]--;
+  const counts = { 1: 9, 2: 9, 3: 9, 4: 9, 5: 9, 6: 9, 7: 9, 8: 9, 9: 9 };
+  for (const row of board) for (const val of row) if (val > 0) counts[val]--;
   return counts;
 }
 
 const DIFF_COLORS = {
-  easy: '#16a34a', medium: '#d97706', hard: '#dc2626', expert: '#7c3aed'
+  easy: "#16a34a",
+  medium: "#d97706",
+  hard: "#dc2626",
+  expert: "#7c3aed",
 };
 
-export default function GameScreen({ difficulty, resumeFromSave, onHome, onComplete, theme }) {
-  const game  = useSudokuGame(difficulty, resumeFromSave);
+export default function GameScreen({
+  difficulty,
+  resumeFromSave,
+  onHome,
+  onComplete,
+  theme,
+}) {
+  const game = useSudokuGame(difficulty, resumeFromSave);
   const timer = useTimer();
 
   // Whether to show the "leave game?" confirmation modal
@@ -41,6 +52,21 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onCompl
       onComplete({ difficulty, time: timer.elapsed });
     }
   }, [game.isComplete]);
+
+  useEffect(() => {
+    const handleBlur = () => {
+      if (timer.running) timer.pause();
+    };
+    window.addEventListener("blur", handleBlur);
+    return () => window.removeEventListener("blur", handleBlur);
+  }, [timer.running]);
+
+  // Auto-save whenever the timer pauses and there's progress
+  useEffect(() => {
+    if (!timer.running && game.canUndo && !game.isComplete) {
+      saveGame(game.rawState, timer.elapsed);
+    }
+  }, [timer.running]);
 
   // ── Home button: intercept if game is in progress ──────────────────────────
   // "In progress" = at least one move made and not complete
@@ -75,31 +101,80 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onCompl
   return (
     <div className={styles.screen}>
       <header className={styles.header}>
-        <button className={styles.iconBtn} onClick={handleHomeClick} aria-label="Home">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        <button
+          className={styles.iconBtn}
+          onClick={handleHomeClick}
+          aria-label="Home"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
         </button>
 
         <div className={styles.meta}>
-          <span className={styles.diffBadge} style={{ color: DIFF_COLORS[difficulty] }}>
+          <span
+            className={styles.diffBadge}
+            style={{ color: DIFF_COLORS[difficulty] }}
+          >
             {difficulty}
           </span>
-          <span className={styles.timer} aria-live="polite">{timer.formatted}</span>
+          <span className={styles.timer} aria-live="polite">
+            {timer.formatted}
+          </span>
         </div>
 
         <div className={styles.headerRight}>
           <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
-          <button className={styles.iconBtn} onClick={timer.toggle} aria-label={timer.running ? 'Pause' : 'Resume'}>
-            {timer.running
-              ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-              : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            }
+          <button
+            className={styles.iconBtn}
+            onClick={timer.toggle}
+            aria-label={timer.running ? "Pause" : "Resume"}
+          >
+            {timer.running ? (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="6" y="4" width="4" height="16" />
+                <rect x="14" y="4" width="4" height="16" />
+              </svg>
+            ) : (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+            )}
           </button>
         </div>
       </header>
 
-      <div className={`${styles.boardWrapper} ${!timer.running ? styles.paused : ''}`}>
+      <div
+        className={`${styles.boardWrapper} ${!timer.running ? styles.paused : ""}`}
+      >
         {!timer.running && !showLeaveModal && (
           <div className={styles.pauseOverlay} onClick={timer.toggle}>
             <span>Paused — tap to resume</span>
@@ -136,13 +211,19 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onCompl
               You have a game in progress. What would you like to do?
             </p>
             <div className={styles.modalActions}>
-              <button className={styles.modalBtnPrimary} onClick={handleSaveAndLeave}>
+              <button
+                className={styles.modalBtnPrimary}
+                onClick={handleSaveAndLeave}
+              >
                 Save &amp; leave
               </button>
               <button className={styles.modalBtnDanger} onClick={handleAbandon}>
                 Abandon puzzle
               </button>
-              <button className={styles.modalBtnSecondary} onClick={handleResume}>
+              <button
+                className={styles.modalBtnSecondary}
+                onClick={handleResume}
+              >
                 Keep playing
               </button>
             </div>
@@ -160,11 +241,14 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onCompl
             <p className={styles.winDiff}>{difficulty}</p>
             {game.hintsUsed > 0 && (
               <p className={styles.winHints}>
-                {game.hintsUsed} hint{game.hintsUsed !== 1 ? 's' : ''} used
+                {game.hintsUsed} hint{game.hintsUsed !== 1 ? "s" : ""} used
               </p>
             )}
             <div className={styles.winActions}>
-              <button className={styles.winBtn} onClick={() => game.newGame(difficulty)}>
+              <button
+                className={styles.winBtn}
+                onClick={() => game.newGame(difficulty)}
+              >
                 Play again
               </button>
               <button className={styles.winBtnSecondary} onClick={onHome}>

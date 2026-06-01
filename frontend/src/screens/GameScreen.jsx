@@ -62,9 +62,13 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
   const handlePlayAgain = () => {
     timer.reset();
     game.newGame(difficulty);
-    // Small delay so the reset state is applied before starting
     setTimeout(() => timer.start(), 50);
   };
+
+  // A game counts as "abandoned" (loss) if the player made at least one move.
+  // Leaving before touching anything doesn't penalise the win rate.
+  const wasStarted = game.canUndo || timer.elapsed > 10;
+
   // "In progress" = at least one move made and not complete
   const hasProgress = game.canUndo && !game.isComplete;
 
@@ -73,18 +77,20 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
       timer.pause();
       setShowLeaveModal(true);
     } else {
+      // No moves made — leave cleanly without counting as abandoned
       onHome();
     }
   };
 
   const handleSaveAndLeave = () => {
     saveGame(game.rawState, timer.elapsed);
+    // Saving counts as a pause, not an abandon — don't break streak or count as loss
     onHome();
   };
 
   const handleAbandon = () => {
     deleteSavedGame(difficulty);
-    onAbandon(difficulty);
+    onAbandon(difficulty); // breaks streak, game already counted as started
   };
 
   const handleResume = () => {

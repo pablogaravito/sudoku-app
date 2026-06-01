@@ -2,6 +2,7 @@
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   padding: 1.5rem 1.25rem;
   gap: 1.25rem;
 }
@@ -10,6 +11,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  max-width: 480px;
 }
 
 .backBtn {
@@ -35,10 +38,10 @@
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: none;
+  width: 100%;
+  max-width: 480px;
 }
-.tabs::-webkit-scrollbar {
-  display: none;
-}
+.tabs::-webkit-scrollbar { display: none; }
 
 .tab {
   flex-shrink: 0;
@@ -54,10 +57,7 @@
   transition: all 0.15s;
 }
 
-.tab:hover {
-  color: var(--tab-color);
-  border-color: var(--tab-color);
-}
+.tab:hover { color: var(--tab-color); border-color: var(--tab-color); }
 
 .tabActive {
   background: color-mix(in srgb, var(--tab-color) 10%, var(--bg-card));
@@ -67,7 +67,8 @@
 
 /* ── Stats grid ─────────────────────────────────────────────────────────────── */
 .content {
-  flex: 1;
+  width: 100%;
+  max-width: 480px;
 }
 
 .empty {
@@ -107,9 +108,7 @@
   padding: 4px 0;
   border-bottom: 1px solid var(--color-border);
 }
-.statRow:last-child {
-  border-bottom: none;
-}
+.statRow:last-child { border-bottom: none; }
 
 .statLabel {
   font-size: 13px;
@@ -128,6 +127,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  max-width: 480px;
 }
 
 .sectionLabel {
@@ -155,17 +156,10 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.transferBtn:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-.transferBtn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
+.transferBtn:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+.transferBtn:disabled { opacity: 0.4; cursor: default; }
 
-.exportBox,
-.importBox {
+.exportBox, .importBox {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -175,10 +169,7 @@
   border-radius: var(--radius-md);
 }
 
-.exportLabel {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
+.exportLabel { font-size: 13px; color: var(--color-text-muted); }
 
 .codeArea {
   width: 100%;
@@ -206,22 +197,15 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.copyBtn:hover {
-  background: var(--color-primary-hover);
-}
+.copyBtn:hover { background: var(--color-primary-hover); }
 
-.importMsg {
-  font-size: 13px;
-  font-weight: 500;
-}
-.ok {
-  color: #16a34a;
-}
-.err {
-  color: #dc2626;
-}
+.importMsg { font-size: 13px; font-weight: 500; }
+.ok  { color: #16a34a; }
+.err { color: #dc2626; }
 
 .clearBtn {
+  width: 100%;
+  max-width: 480px;
   background: none;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -232,7 +216,4 @@
   cursor: pointer;
   transition: all 0.15s;
 }
-.clearBtn:hover {
-  background: #fee2e2;
-  border-color: #dc2626;
-}
+.clearBtn:hover { background: #fee2e2; border-color: #dc2626; }

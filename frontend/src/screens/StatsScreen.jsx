@@ -39,17 +39,17 @@ function DiffStats({ d }) {
       </div>
     );
   }
-  // Support old stats shape that used `played` instead of `won`
-  const won = d.won ?? d.played ?? 0;
-  const started = d.started ?? won;
+  const won    = d.won ?? d.played ?? 0;
+  const lost   = d.lost ?? 0;
+  const played = won + lost; // total completed (finished or abandoned)
 
   return (
     <div className={styles.statsGrid}>
       <div className={styles.statsGroup}>
         <p className={styles.groupLabel}>Games</p>
-        <StatRow label="Started"   value={started} />
         <StatRow label="Won"       value={won} />
-        <StatRow label="Win rate"  value={pct(won, started)} />
+        <StatRow label="Lost"      value={lost} />
+        <StatRow label="Win rate"  value={pct(won, played)} />
       </div>
       <div className={styles.statsGroup}>
         <p className={styles.groupLabel}>Time</p>
@@ -102,6 +102,7 @@ export default function StatsScreen({ onBack, theme }) {
         merged[diff] = {
           started:       (a.started       ?? 0) + (b.started       ?? 0),
           won:           (a.won           ?? 0) + (b.won           ?? 0),
+          lost:          (a.lost          ?? 0) + (b.lost          ?? 0),
           totalTime:     (a.totalTime     ?? 0) + (b.totalTime     ?? 0),
           best:          Math.min(a.best  ?? Infinity, b.best ?? Infinity),
           winsNoHints:   (a.winsNoHints   ?? 0) + (b.winsNoHints   ?? 0),

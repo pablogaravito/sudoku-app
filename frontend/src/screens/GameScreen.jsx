@@ -59,7 +59,12 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
     }
   }, [timer.running]);
 
-  // ── Home button: intercept if game is in progress ──────────────────────────
+  const handlePlayAgain = () => {
+    timer.reset();
+    game.newGame(difficulty);
+    // Small delay so the reset state is applied before starting
+    setTimeout(() => timer.start(), 50);
+  };
   // "In progress" = at least one move made and not complete
   const hasProgress = game.canUndo && !game.isComplete;
 
@@ -181,7 +186,7 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
               </p>
             )}
             <div className={styles.winActions}>
-              <button className={styles.winBtn} onClick={() => game.newGame(difficulty)}>
+              <button className={styles.winBtn} onClick={handlePlayAgain}>
                 Play again
               </button>
               <button className={styles.winBtnSecondary} onClick={onHome}>

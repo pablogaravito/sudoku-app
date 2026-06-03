@@ -86,7 +86,14 @@ export default function App() {
 
   // Not logged in → show auth screen (only if auth is required)
   if (requireAuth && !auth.user) {
-    return <AuthScreen onSignIn={auth.signInWithGoogle} theme={theme} />;
+    return (
+      <AuthScreen
+        onGoogleSignIn={auth.signInWithGoogle}
+        onSendOtp={auth.sendOtp}
+        onVerifyOtp={auth.verifyOtp}
+        theme={theme}
+      />
+    );
   }
 
   return (

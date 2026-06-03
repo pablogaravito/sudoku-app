@@ -1,5 +1,3 @@
-/* src/screens/AuthScreen.module.css */
-
 .screen {
   min-height: 100%;
   display: flex;
@@ -16,9 +14,7 @@
   right: 1rem;
 }
 
-.header {
-  text-align: center;
-}
+.header { text-align: center; }
 
 .title {
   font-family: var(--font-mono);
@@ -59,7 +55,19 @@
   line-height: 1.6;
 }
 
-.googleBtn {
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+.googleBtn, .emailBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,15 +86,86 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.googleBtn:hover:not(:disabled) {
+.googleBtn:hover:not(:disabled),
+.emailBtn:hover:not(:disabled) {
   border-color: var(--color-primary);
   box-shadow: 0 2px 8px rgba(37,99,235,0.15);
 }
 
-.googleBtn:disabled {
-  opacity: 0.6;
-  cursor: default;
+.googleBtn:disabled, .emailBtn:disabled { opacity: 0.6; cursor: default; }
+
+/* ── Divider ────────────────────────────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-muted);
+  font-size: 13px;
 }
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* ── OTP form ───────────────────────────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--color-text);
+  transition: border-color 0.15s;
+  outline: none;
+}
+.input:focus { border-color: var(--color-primary); }
+.input::placeholder { color: var(--color-text-muted); }
+
+.codeInput {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 13px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.submitBtn:hover:not(:disabled) { background: var(--color-primary-hover); }
+.submitBtn:disabled { opacity: 0.5; cursor: default; }
+
+.resendBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.resendBtn:hover { color: var(--color-text); }
 
 .error {
   font-size: 13px;

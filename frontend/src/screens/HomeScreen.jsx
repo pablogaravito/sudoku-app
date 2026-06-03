@@ -11,7 +11,7 @@ const DIFFICULTIES = [
   { key: 'insane', label: 'Insane', desc: '~23 clues', color: '#be123c' },
 ];
 
-export default function HomeScreen({ onStart, onResume, onViewStats, theme }) {
+export default function HomeScreen({ onStart, onResume, onViewStats, theme, user, onSignOut }) {
   const [selected, setSelected] = useState('medium');
   const [savedDiff, setSavedDiff] = useState(null);
 
@@ -24,7 +24,18 @@ export default function HomeScreen({ onStart, onResume, onViewStats, theme }) {
   return (
     <div className={styles.screen}>
       <div className={styles.topBar}>
-        <div />
+        <div className={styles.userInfo}>
+          {user && (
+            <>
+              <span className={styles.userName}>
+                {user.user_metadata?.full_name ?? user.email}
+              </span>
+              <button className={styles.signOutBtn} onClick={onSignOut}>
+                Sign out
+              </button>
+            </>
+          )}
+        </div>
         <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
       </div>
 

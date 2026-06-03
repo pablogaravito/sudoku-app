@@ -2,9 +2,12 @@ import { useState, useCallback } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import GameScreen from './screens/GameScreen';
 import StatsScreen from './screens/StatsScreen';
+import AuthScreen from './screens/AuthScreen';
 import { useTheme } from './hooks/useTheme';
+import { useAuth } from './hooks/useAuth';
 import './styles/index.css';
 
+// ── Local stats (fallback while not logged in, or for guests) ─────────────────
 const STATS_KEY = 'sudoku-stats';
 
 function loadStats() {
@@ -22,31 +25,25 @@ function saveStats(stats) {
 
 function emptyDiffStats() {
   return {
-    started:       0,
-    won:           0,
-    lost:          0,   // explicitly abandoned games
-    totalTime:     0,
-    best:          Infinity,
-    winsNoHints:   0,
-    totalHints:    0,
-    currentStreak: 0,
-    longestStreak: 0,
+    started: 0, won: 0, lost: 0,
+    totalTime: 0, best: Infinity,
+    winsNoHints: 0, totalHints: 0,
+    currentStreak: 0, longestStreak: 0,
   };
 }
 
 export default function App() {
-  const [screen, setScreen]         = useState('home');
+  const [screen, setScreen]       = useState('home');
   const [difficulty, setDifficulty] = useState('medium');
-  const [resuming, setResuming]     = useState(false);
+  const [resuming, setResuming]   = useState(false);
   const theme = useTheme();
+  const auth  = useAuth();
 
   const handleStart = useCallback((diff) => {
-    // Record a game started
     const stats = loadStats();
     if (!stats[diff]) stats[diff] = emptyDiffStats();
     stats[diff].started = (stats[diff].started ?? 0) + 1;
     saveStats(stats);
-
     setDifficulty(diff);
     setResuming(false);
     setScreen('game');
@@ -58,12 +55,10 @@ export default function App() {
     setScreen('game');
   }, []);
 
-  // Called when a puzzle is solved
   const handleComplete = useCallback(({ difficulty: diff, time, hintsUsed }) => {
     const stats = loadStats();
     if (!stats[diff]) stats[diff] = emptyDiffStats();
     const d = stats[diff];
-
     d.won           = (d.won          ?? 0) + 1;
     d.totalTime     = (d.totalTime    ?? 0) + time;
     d.best          = Math.min(d.best ?? Infinity, time);
@@ -71,11 +66,9 @@ export default function App() {
     d.winsNoHints   = (d.winsNoHints  ?? 0) + (hintsUsed === 0 ? 1 : 0);
     d.currentStreak = (d.currentStreak ?? 0) + 1;
     d.longestStreak = Math.max(d.longestStreak ?? 0, d.currentStreak);
-
     saveStats(stats);
   }, []);
 
-  // Called when a game is abandoned (streak breaks, counts as a loss)
   const handleAbandon = useCallback((diff) => {
     const stats = loadStats();
     if (!stats[diff]) stats[diff] = emptyDiffStats();
@@ -85,6 +78,14 @@ export default function App() {
     setScreen('home');
   }, []);
 
+  // While checking for existing session, show nothing (avoids flash)
+  if (auth.loading) return null;
+
+  // Not logged in → show auth screen
+  if (!auth.user) {
+    return <AuthScreen onSignIn={auth.signInWithGoogle} theme={theme} />;
+  }
+
   return (
     <>
       {screen === 'home'  && (
@@ -93,6 +94,8 @@ export default function App() {
           onResume={handleResume}
           onViewStats={() => setScreen('stats')}
           theme={theme}
+          user={auth.user}
+          onSignOut={auth.signOut}
         />
       )}
       {screen === 'game'  && (

@@ -13,8 +13,36 @@
 .topBar {
   position: absolute;
   top: 1rem;
+  left: 1rem;
   right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userName {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.signOutBtn {
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 0;
+}
+.signOutBtn:hover { color: var(--color-text); }
 
 .header {
   text-align: center;

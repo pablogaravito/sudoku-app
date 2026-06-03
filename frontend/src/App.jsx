@@ -78,11 +78,14 @@ export default function App() {
     setScreen('home');
   }, []);
 
-  // While checking for existing session, show nothing (avoids flash)
-  if (auth.loading) return null;
+  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH !== 'false';
 
-  // Not logged in → show auth screen
-  if (!auth.user) {
+  // While checking for existing session, show nothing (avoids flash)
+  // Skip this wait entirely if auth is disabled
+  if (requireAuth && auth.loading) return null;
+
+  // Not logged in → show auth screen (only if auth is required)
+  if (requireAuth && !auth.user) {
     return <AuthScreen onSignIn={auth.signInWithGoogle} theme={theme} />;
   }
 

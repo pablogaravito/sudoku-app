@@ -14,21 +14,19 @@ export function useAuth() {
   const [loading, setLoading] = useState(true); // true while we check for existing session
 
   useEffect(() => {
-    // Clean up the # left by OAuth redirect
-    if (window.location.hash === "#") {
-      window.history.replaceState(null, "", window.location.pathname);
-    }
-    // Check if there's already a session (e.g. user refreshed the page)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for login/logout events
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      // Clean up the # AFTER Supabase has finished processing the redirect
+      if (window.location.hash) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
     });
 
     return () => subscription.unsubscribe();

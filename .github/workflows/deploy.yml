@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
 
@@ -24,7 +24,10 @@ jobs:
 
       - name: Build
         working-directory: frontend
-        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build -- --mode github
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4

@@ -1,102 +1,98 @@
-import { useState, useCallback } from "react";
-import HomeScreen from "./screens/HomeScreen";
-import GameScreen from "./screens/GameScreen";
-import StatsScreen from "./screens/StatsScreen";
-import AuthScreen from "./screens/AuthScreen";
-import { useTheme } from "./hooks/useTheme";
-import { useAuth } from "./hooks/useAuth";
-import "./styles/index.css";
+import { useState, useCallback } from 'react';
+import HomeScreen from './screens/HomeScreen';
+import GameScreen from './screens/GameScreen';
+import StatsScreen from './screens/StatsScreen';
+import AuthScreen from './screens/AuthScreen';
+import { useTheme } from './hooks/useTheme';
+import { useAuth } from './hooks/useAuth';
+import {
+  loadLocalStats, saveLocalStats,
+  loadRemoteStats, saveRemoteStats,
+} from './lib/statsService';
+import './styles/index.css';
 
-// ── Local stats (fallback while not logged in, or for guests) ──
-const STATS_KEY = "sudoku-stats";
-
-function loadStats() {
-  try {
-    const raw = localStorage.getItem(STATS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveStats(stats) {
-  try {
-    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-  } catch {
-    console.warn("Could not save stats");
-  }
-}
+const requireAuth = import.meta.env.VITE_REQUIRE_AUTH !== 'false';
 
 function emptyDiffStats() {
   return {
-    started: 0,
-    won: 0,
-    lost: 0,
-    totalTime: 0,
-    best: Infinity,
-    winsNoHints: 0,
-    totalHints: 0,
-    currentStreak: 0,
-    longestStreak: 0,
+    won: 0, lost: 0,
+    totalTime: 0, best: Infinity,
+    winsNoHints: 0, totalHints: 0,
+    currentStreak: 0, longestStreak: 0,
   };
 }
 
 export default function App() {
-  const [screen, setScreen] = useState("home");
-  const [difficulty, setDifficulty] = useState("medium");
-  const [resuming, setResuming] = useState(false);
+  const [screen, setScreen]         = useState('home');
+  const [difficulty, setDifficulty] = useState('medium');
+  const [resuming, setResuming]     = useState(false);
   const theme = useTheme();
-  const auth = useAuth();
+  const auth  = useAuth();
 
+  // Are we using Supabase or localStorage?
+  const isRemote = requireAuth && !!auth.user;
+
+  // ── Load stats ─────────────────────────────────────────────────────────────
+  // Used by StatsScreen — called on mount via prop
+  const getStats = useCallback(async () => {
+    if (isRemote) return loadRemoteStats(auth.user.id);
+    return loadLocalStats();
+  }, [isRemote, auth.user]);
+
+  // ── Update a single difficulty's stats ────────────────────────────────────
+  const updateStats = useCallback(async (diff, updater) => {
+    if (isRemote) {
+      // Read current row, apply updater, write back
+      const all = await loadRemoteStats(auth.user.id);
+      const current = all[diff] ?? emptyDiffStats();
+      const updated = updater(current);
+      await saveRemoteStats(auth.user.id, diff, updated);
+    } else {
+      const all = loadLocalStats();
+      const current = all[diff] ?? emptyDiffStats();
+      all[diff] = updater(current);
+      saveLocalStats(all);
+    }
+  }, [isRemote, auth.user]);
+
+  // ── Game events ────────────────────────────────────────────────────────────
   const handleStart = useCallback((diff) => {
-    const stats = loadStats();
-    if (!stats[diff]) stats[diff] = emptyDiffStats();
-    stats[diff].started = (stats[diff].started ?? 0) + 1;
-    saveStats(stats);
     setDifficulty(diff);
     setResuming(false);
-    setScreen("game");
+    setScreen('game');
   }, []);
 
   const handleResume = useCallback((diff) => {
     setDifficulty(diff);
     setResuming(true);
-    setScreen("game");
+    setScreen('game');
   }, []);
 
-  const handleComplete = useCallback(
-    ({ difficulty: diff, time, hintsUsed }) => {
-      const stats = loadStats();
-      if (!stats[diff]) stats[diff] = emptyDiffStats();
-      const d = stats[diff];
-      d.won = (d.won ?? 0) + 1;
-      d.totalTime = (d.totalTime ?? 0) + time;
-      d.best = Math.min(d.best ?? Infinity, time);
-      d.totalHints = (d.totalHints ?? 0) + hintsUsed;
-      d.winsNoHints = (d.winsNoHints ?? 0) + (hintsUsed === 0 ? 1 : 0);
-      d.currentStreak = (d.currentStreak ?? 0) + 1;
-      d.longestStreak = Math.max(d.longestStreak ?? 0, d.currentStreak);
-      saveStats(stats);
-    },
-    [],
-  );
+  const handleComplete = useCallback(async ({ difficulty: diff, time, hintsUsed }) => {
+    await updateStats(diff, (d) => ({
+      ...d,
+      won:           (d.won          ?? 0) + 1,
+      totalTime:     (d.totalTime    ?? 0) + time,
+      best:          Math.min(d.best ?? Infinity, time),
+      totalHints:    (d.totalHints   ?? 0) + hintsUsed,
+      winsNoHints:   (d.winsNoHints  ?? 0) + (hintsUsed === 0 ? 1 : 0),
+      currentStreak: (d.currentStreak ?? 0) + 1,
+      longestStreak: Math.max(d.longestStreak ?? 0, (d.currentStreak ?? 0) + 1),
+    }));
+  }, [updateStats]);
 
-  const handleAbandon = useCallback((diff) => {
-    const stats = loadStats();
-    if (!stats[diff]) stats[diff] = emptyDiffStats();
-    stats[diff].lost = (stats[diff].lost ?? 0) + 1;
-    stats[diff].currentStreak = 0;
-    saveStats(stats);
-    setScreen("home");
-  }, []);
+  const handleAbandon = useCallback(async (diff) => {
+    await updateStats(diff, (d) => ({
+      ...d,
+      lost:          (d.lost          ?? 0) + 1,
+      currentStreak: 0,
+    }));
+    setScreen('home');
+  }, [updateStats]);
 
-  const requireAuth = import.meta.env.VITE_REQUIRE_AUTH !== "false";
-
-  // While checking for existing session, show nothing (avoids flash)
-  // Skip this wait entirely if auth is disabled
+  // ── Auth gate ──────────────────────────────────────────────────────────────
   if (requireAuth && auth.loading) return null;
 
-  // Not logged in → show auth screen (only if auth is required)
   if (requireAuth && !auth.user) {
     return (
       <AuthScreen
@@ -110,29 +106,35 @@ export default function App() {
 
   return (
     <>
-      {screen === "home" && (
+      {screen === 'home'  && (
         <HomeScreen
           onStart={handleStart}
           onResume={handleResume}
-          onViewStats={() => setScreen("stats")}
+          onViewStats={() => setScreen('stats')}
           theme={theme}
           user={auth.user}
           onSignOut={auth.signOut}
         />
       )}
-      {screen === "game" && (
+      {screen === 'game'  && (
         <GameScreen
           key={`${difficulty}-${resuming}`}
           difficulty={difficulty}
           resumeFromSave={resuming}
-          onHome={() => setScreen("home")}
+          onHome={() => setScreen('home')}
           onAbandon={handleAbandon}
           onComplete={handleComplete}
           theme={theme}
         />
       )}
-      {screen === "stats" && (
-        <StatsScreen onBack={() => setScreen("home")} theme={theme} />
+      {screen === 'stats' && (
+        <StatsScreen
+          onBack={() => setScreen('home')}
+          theme={theme}
+          getStats={getStats}
+          userId={auth.user?.id}
+          isRemote={isRemote}
+        />
       )}
     </>
   );

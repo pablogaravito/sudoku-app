@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ThemeToggle from '../components/ThemeToggle';
 import { encodeStats, decodeStats } from '../logic/statsCodec';
+import { supabase } from '../lib/supabase';
 import styles from './StatsScreen.module.css';
 
 const DIFFICULTIES = ['easy', 'medium', 'hard', 'expert', 'insane'];
@@ -71,7 +72,7 @@ function DiffStats({ d }) {
   );
 }
 
-export default function StatsScreen({ onBack, theme }) {
+export default function StatsScreen({ onBack, theme, getStats, userId, isRemote }) {
   const [stats, setStats]           = useState(null);
   const [activeTab, setActiveTab]   = useState('easy');
   const [exported, setExported]     = useState('');
@@ -80,9 +81,10 @@ export default function StatsScreen({ onBack, theme }) {
   const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STATS_KEY);
-    setStats(raw ? JSON.parse(raw) : {});
-  }, []);
+    getStats()
+      .then(data => setStats(data ?? {}))
+      .catch(() => setStats({}));
+  }, [getStats]);
 
   const handleExport = () => {
     if (!stats) return;
@@ -122,12 +124,15 @@ export default function StatsScreen({ onBack, theme }) {
     setShowImport(false);
   };
 
-  const handleClear = () => {
-    if (window.confirm('Clear all stats? This cannot be undone.')) {
+  const handleClear = async () => {
+    if (!window.confirm('Clear all stats? This cannot be undone.')) return;
+    if (isRemote && userId) {
+      await supabase.from('stats').delete().eq('user_id', userId);
+    } else {
       localStorage.removeItem(STATS_KEY);
-      setStats({});
-      setExported('');
     }
+    setStats({});
+    setExported('');
   };
 
   const hasAnyStats = stats && Object.values(stats).some(d => ((d?.won ?? d?.played ?? 0) + (d?.lost ?? 0)) > 0);

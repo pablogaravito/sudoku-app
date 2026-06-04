@@ -74,13 +74,15 @@ export default function App() {
   }, [auth.user]);
 
   const handleAbandon = useCallback(async (diff) => {
-    await updateStats(diff, (d) => ({
-      ...d,
-      lost:          (d.lost          ?? 0) + 1,
+    const all = await loadRemoteStats(auth.user.id);
+    const prev = all[diff] ?? emptyDiffStats();
+    await saveRemoteStats(auth.user.id, diff, {
+      ...prev,
+      lost:          (prev.lost          ?? 0) + 1,
       currentStreak: 0,
-    }));
+    });
     setScreen('home');
-  }, [updateStats]);
+  }, [auth.user]);
 
   // ── Auth gate ──────────────────────────────────────────────────────────────
   if (auth.loading) return null;

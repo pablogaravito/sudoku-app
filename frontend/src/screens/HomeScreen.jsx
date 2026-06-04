@@ -11,11 +11,13 @@ const DIFFICULTIES = [
   { key: 'insane', label: 'Insane', desc: '~23 clues', color: '#be123c' },
 ];
 
-export default function HomeScreen({ onStart, onResume, onViewStats, theme, user, onSignOut }) {
+export default function HomeScreen({
+  onStart, onResume, onViewStats, onViewLeaderboard,
+  theme, user, onSignOut,
+}) {
   const [selected, setSelected] = useState('medium');
   const [savedDiff, setSavedDiff] = useState(null);
 
-  // Check localStorage for any saved game on mount
   useEffect(() => {
     const found = DIFFICULTIES.map(d => d.key).find(d => hasSavedGame(d));
     setSavedDiff(found ?? null);
@@ -44,7 +46,6 @@ export default function HomeScreen({ onStart, onResume, onViewStats, theme, user
         <p className={styles.subtitle}>A clean puzzle for a clear mind</p>
       </header>
 
-      {/* Resume banner — only shown when a saved game exists */}
       {savedDiff && (
         <div className={styles.resumeBanner}>
           <div className={styles.resumeInfo}>
@@ -95,9 +96,23 @@ export default function HomeScreen({ onStart, onResume, onViewStats, theme, user
         New Game
       </button>
 
-      <button className={styles.statsLink} onClick={onViewStats}>
-        View stats &amp; records →
-      </button>
+      {/* Navigation buttons */}
+      <div className={styles.navBtns}>
+        <button className={styles.navBtn} onClick={onViewStats}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          My Stats
+        </button>
+        <button className={styles.navBtn} onClick={onViewLeaderboard}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 15l-2 5H7l-2-5"/><path d="M17 15l2 5h3l2-5"/>
+            <path d="M14 15V9a2 2 0 00-4 0v6"/><circle cx="12" cy="5" r="2"/>
+          </svg>
+          Leaderboard
+        </button>
+      </div>
     </div>
   );
 }

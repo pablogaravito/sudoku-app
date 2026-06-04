@@ -149,18 +149,32 @@
 .playBtn:hover  { background: var(--color-primary-hover); }
 .playBtn:active { transform: scale(0.98); }
 
-.statsLink {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-family: var(--font-sans);
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.navBtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
 }
 
-.statsLink:hover { color: var(--color-text); }
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-card);
+}
+.navBtn:hover { color: var(--color-primary); border-color: var(--color-primary); }
 
 /* Resume banner */
 .resumeBanner {

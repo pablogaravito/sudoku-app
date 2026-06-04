@@ -1,3 +1,5 @@
+/* LeaderboardScreen.module.css */
+
 .screen {
   min-height: 100%;
   display: flex;
@@ -63,75 +65,104 @@
   color: var(--tab-color);
 }
 
-/* ── Stats grid ─────────────────────────────────────────────────────────────── */
+/* ── Content ────────────────────────────────────────────────────────────────── */
 .content {
   width: 100%;
   max-width: 480px;
 }
 
 .empty {
-  padding: 2rem 0;
+  padding: 3rem 0;
   text-align: center;
   color: var(--color-text-muted);
   font-size: 14px;
 }
 
-.statsGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.statsGroup {
+/* ── Table ──────────────────────────────────────────────────────────────────── */
+.table {
   background: var(--bg-card);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  overflow: hidden;
   box-shadow: var(--shadow-card);
 }
 
-.groupLabel {
+.tableHeader {
+  display: grid;
+  grid-template-columns: 44px 1fr 80px 50px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1.5px solid var(--color-border);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
-  margin-bottom: 10px;
 }
 
-.statRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
+.row {
+  display: grid;
+  grid-template-columns: 44px 1fr 80px 50px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  transition: background 0.1s;
 }
-.statRow:last-child { border-bottom: none; }
+.row:last-child { border-bottom: none; }
+.row:hover { background: var(--bg-surface); }
 
-.statLabel {
-  font-size: 13px;
+.rowMe {
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--bg-card)) !important;
+}
+
+.colRank {
+  font-size: 15px;
+  font-weight: 600;
   color: var(--color-text-muted);
 }
 
-.statValue {
+.colName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.youBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.colTime {
   font-family: var(--font-mono);
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
+  text-align: right;
 }
 
-/* ── Clear button ───────────────────────────────────────────────────────────── */
-.clearBtn {
-  width: 100%;
-  max-width: 480px;
-  background: none;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  color: #dc2626;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.15s;
+.colWins {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: right;
 }
-.clearBtn:hover { background: #fee2e2; border-color: #dc2626; }
+
+.separator {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 18px;
+  letter-spacing: 4px;
+  padding: 4px 0;
+}

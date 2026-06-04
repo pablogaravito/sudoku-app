@@ -3,6 +3,7 @@ import HomeScreen from './screens/HomeScreen';
 import GameScreen from './screens/GameScreen';
 import StatsScreen from './screens/StatsScreen';
 import WinScreen from './screens/WinScreen';
+import LeaderboardScreen from './screens/LeaderboardScreen';
 import AuthScreen from './screens/AuthScreen';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
@@ -25,7 +26,7 @@ export default function App() {
   const [difficulty, setDifficulty] = useState('medium');
   const [resuming, setResuming]     = useState(false);
   const [winInfo, setWinInfo]       = useState(null);
-  const theme = useTheme();
+  const theme = useTheme(auth.user);
   const auth  = useAuth();
 
   // ── Load stats (for StatsScreen) ──────────────────────────────────────────
@@ -105,6 +106,7 @@ export default function App() {
           onStart={handleStart}
           onResume={handleResume}
           onViewStats={() => setScreen('stats')}
+          onViewLeaderboard={() => setScreen('leaderboard')}
           theme={theme}
           user={auth.user}
           onSignOut={auth.signOut}
@@ -131,6 +133,13 @@ export default function App() {
           onHome={() => setScreen('home')}
           onViewStats={() => setScreen('stats')}
           theme={theme}
+        />
+      )}
+      {screen === 'leaderboard' && (
+        <LeaderboardScreen
+          onBack={() => setScreen('home')}
+          theme={theme}
+          userId={auth.user?.id}
         />
       )}
       {screen === 'stats' && (

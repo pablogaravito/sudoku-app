@@ -52,7 +52,35 @@ export async function saveRemoteStats(userId, difficulty, stats) {
   if (error) throw error;
 }
 
-// ─── Leaderboard ──────────────────────────────────────────────────────────────
+// ─── User preferences ─────────────────────────────────────────────────────────
+
+/**
+ * Load preferences from the profiles table.
+ * Returns {} if none saved yet.
+ */
+export async function loadPreferences(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('preferences')
+    .eq('id', userId)
+    .single();
+
+  if (error) return {};
+  return data?.preferences ?? {};
+}
+
+/**
+ * Save preferences to the profiles table.
+ * Merges with existing preferences so partial updates are safe.
+ */
+export async function savePreferences(userId, prefs) {
+  const { error } = await supabase
+    .from('profiles')
+    .update({ preferences: prefs })
+    .eq('id', userId);
+
+  if (error) throw error;
+}
 
 /**
  * Get global leaderboard for a difficulty (top N by best_time).

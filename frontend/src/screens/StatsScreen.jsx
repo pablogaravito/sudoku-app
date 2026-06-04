@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import ThemeToggle from '../components/ThemeToggle';
-import { encodeStats, decodeStats } from '../logic/statsCodec';
 import { supabase } from '../lib/supabase';
 import { getUserPercentile } from '../lib/statsService';
 import styles from './StatsScreen.module.css';
@@ -43,7 +42,8 @@ function DiffStats({ d, percentile }) {
       </div>
     );
   }
-  const played = won + lost; // total completed (finished or abandoned)
+
+  const played = won + lost;
 
   return (
     <div className={styles.statsGrid}>
@@ -76,13 +76,9 @@ function DiffStats({ d, percentile }) {
 }
 
 export default function StatsScreen({ onBack, theme, getStats, userId }) {
-  const [stats, setStats]           = useState(null);
-  const [activeTab, setActiveTab]   = useState('easy');
+  const [stats, setStats]             = useState(null);
+  const [activeTab, setActiveTab]     = useState('easy');
   const [percentiles, setPercentiles] = useState({});
-  const [exported, setExported]     = useState('');
-  const [importText, setImportText] = useState('');
-  const [importMsg, setImportMsg]   = useState(null);
-  const [showImport, setShowImport] = useState(false);
 
   useEffect(() => {
     getStats()
@@ -90,74 +86,35 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
       .catch(() => setStats({}));
   }, [getStats]);
 
-  // Fetch percentiles for all difficulties lazily
+  // Fetch percentiles for all difficulties
   useEffect(() => {
     if (!userId) return;
-    const DIFFICULTIES_LIST = ['easy', 'medium', 'hard', 'expert', 'insane'];
-    DIFFICULTIES_LIST.forEach(async (diff) => {
-      const pct = await getUserPercentile(userId, diff).catch(() => null);
-      if (pct !== null) {
-        setPercentiles(prev => ({ ...prev, [diff]: pct }));
+    DIFFICULTIES.forEach(async (diff) => {
+      const p = await getUserPercentile(userId, diff).catch(() => null);
+      if (p !== null) {
+        setPercentiles(prev => ({ ...prev, [diff]: p }));
       }
     });
   }, [userId]);
-
-  const handleExport = () => {
-    if (!stats) return;
-    setExported(encodeStats(stats));
-  };
-
-  const handleImport = () => {
-    const decoded = decodeStats(importText);
-    if (!decoded) {
-      setImportMsg({ ok: false, text: 'Invalid code — make sure you copied it fully.' });
-      return;
-    }
-    const current = stats || {};
-    const merged  = { ...decoded };
-    for (const diff of DIFFICULTIES) {
-      if (current[diff] && decoded[diff]) {
-        const a = current[diff], b = decoded[diff];
-        merged[diff] = {
-          started:       (a.started       ?? 0) + (b.started       ?? 0),
-          won:           (a.won           ?? 0) + (b.won           ?? 0),
-          lost:          (a.lost          ?? 0) + (b.lost          ?? 0),
-          totalTime:     (a.totalTime     ?? 0) + (b.totalTime     ?? 0),
-          best:          Math.min(a.best  ?? Infinity, b.best ?? Infinity),
-          winsNoHints:   (a.winsNoHints   ?? 0) + (b.winsNoHints   ?? 0),
-          totalHints:    (a.totalHints    ?? 0) + (b.totalHints    ?? 0),
-          currentStreak: Math.max(a.currentStreak ?? 0, b.currentStreak ?? 0),
-          longestStreak: Math.max(a.longestStreak ?? 0, b.longestStreak ?? 0),
-        };
-      } else {
-        merged[diff] = current[diff] || decoded[diff];
-      }
-    }
-    localStorage.setItem(STATS_KEY, JSON.stringify(merged));
-    setStats(merged);
-    setImportMsg({ ok: true, text: 'Stats imported and merged successfully!' });
-    setImportText('');
-    setShowImport(false);
-  };
 
   const handleClear = async () => {
     if (!window.confirm('Clear all stats? This cannot be undone.')) return;
     await supabase.from('stats').delete().eq('user_id', userId);
     setStats({});
-    setExported('');
   };
 
-  const hasAnyStats = stats && Object.values(stats).some(d => ((d?.won ?? d?.played ?? 0) + (d?.lost ?? 0)) > 0);
+  const hasAnyStats = stats && Object.values(stats).some(
+    d => ((d?.won ?? d?.played ?? 0) + (d?.lost ?? 0)) > 0
+  );
 
   return (
     <div className={styles.screen}>
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={onBack}>← Back</button>
-        <h1 className={styles.title}>Stats</h1>
+        <h1 className={styles.title}>My Stats</h1>
         <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
       </header>
 
-      {/* Difficulty tabs */}
       <div className={styles.tabs} role="tablist">
         {DIFFICULTIES.map(diff => (
           <button
@@ -173,51 +130,14 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
         ))}
       </div>
 
-      {/* Stats for active tab */}
       <div className={styles.content}>
         <DiffStats d={stats?.[activeTab]} percentile={percentiles[activeTab]} />
       </div>
 
-      {/* Backup section */}
-      <div className={styles.transferSection}>
-        <p className={styles.sectionLabel}>backup &amp; restore</p>
-        <div className={styles.transferBtns}>
-          <button className={styles.transferBtn} onClick={handleExport} disabled={!hasAnyStats}>
-            Export stats
-          </button>
-          <button className={styles.transferBtn} onClick={() => { setShowImport(v => !v); setImportMsg(null); }}>
-            Import stats
-          </button>
-        </div>
-
-        {exported && (
-          <div className={styles.exportBox}>
-            <p className={styles.exportLabel}>Copy this code and save it somewhere safe:</p>
-            <textarea className={styles.codeArea} readOnly value={exported} onClick={e => e.target.select()} />
-            <button className={styles.copyBtn} onClick={() => navigator.clipboard.writeText(exported)}>
-              Copy to clipboard
-            </button>
-          </div>
-        )}
-
-        {showImport && (
-          <div className={styles.importBox}>
-            <p className={styles.exportLabel}>Paste your export code below:</p>
-            <textarea className={styles.codeArea} value={importText} onChange={e => setImportText(e.target.value)} placeholder="Paste code here..." />
-            {importMsg && (
-              <p className={`${styles.importMsg} ${importMsg.ok ? styles.ok : styles.err}`}>
-                {importMsg.text}
-              </p>
-            )}
-            <button className={styles.transferBtn} onClick={handleImport} disabled={!importText.trim()}>
-              Import
-            </button>
-          </div>
-        )}
-      </div>
-
       {hasAnyStats && (
-        <button className={styles.clearBtn} onClick={handleClear}>Clear all stats</button>
+        <button className={styles.clearBtn} onClick={handleClear}>
+          Clear all stats
+        </button>
       )}
     </div>
   );

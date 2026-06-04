@@ -177,31 +177,6 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
           </div>
         </div>
       )}
-
-      {/* ── Win overlay ──────────────────────────────────────────────────── */}
-      {game.isComplete && (
-        <div className={styles.winOverlay}>
-          <div className={styles.winCard}>
-            <div className={styles.winEmoji}>🎉</div>
-            <h2 className={styles.winTitle}>Solved!</h2>
-            <p className={styles.winTime}>{timer.formatted}</p>
-            <p className={styles.winDiff}>{difficulty}</p>
-            {game.hintsUsed > 0 && (
-              <p className={styles.winHints}>
-                {game.hintsUsed} hint{game.hintsUsed !== 1 ? 's' : ''} used
-              </p>
-            )}
-            <div className={styles.winActions}>
-              <button className={styles.winBtn} onClick={handlePlayAgain}>
-                Play again
-              </button>
-              <button className={styles.winBtnSecondary} onClick={onHome}>
-                Change difficulty
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

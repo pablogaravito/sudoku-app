@@ -2,11 +2,12 @@ import { useState, useCallback } from 'react';
 import HomeScreen from './screens/HomeScreen';
 import GameScreen from './screens/GameScreen';
 import StatsScreen from './screens/StatsScreen';
+import WinScreen from './screens/WinScreen';
 import AuthScreen from './screens/AuthScreen';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
 import {
-  loadRemoteStats, saveRemoteStats,
+  loadRemoteStats, saveRemoteStats, getRankForTime,
 } from './lib/statsService';
 import './styles/index.css';
 
@@ -23,20 +24,13 @@ export default function App() {
   const [screen, setScreen]         = useState('home');
   const [difficulty, setDifficulty] = useState('medium');
   const [resuming, setResuming]     = useState(false);
+  const [winInfo, setWinInfo]       = useState(null);
   const theme = useTheme();
   const auth  = useAuth();
 
-  // ── Load stats ─────────────────────────────────────────────────────────────
+  // ── Load stats (for StatsScreen) ──────────────────────────────────────────
   const getStats = useCallback(async () => {
     return loadRemoteStats(auth.user.id);
-  }, [auth.user]);
-
-  // ── Update a single difficulty's stats ────────────────────────────────────
-  const updateStats = useCallback(async (diff, updater) => {
-    const all = await loadRemoteStats(auth.user.id);
-    const current = all[diff] ?? emptyDiffStats();
-    const updated = updater(current);
-    await saveRemoteStats(auth.user.id, diff, updated);
   }, [auth.user]);
 
   // ── Game events ────────────────────────────────────────────────────────────
@@ -53,17 +47,31 @@ export default function App() {
   }, []);
 
   const handleComplete = useCallback(async ({ difficulty: diff, time, hintsUsed }) => {
-    await updateStats(diff, (d) => ({
-      ...d,
-      won:           (d.won           ?? 0) + 1,
-      totalTime:     (d.totalTime     ?? 0) + time,
-      best:          Math.min(d.best  ?? Infinity, time),
-      totalHints:    (d.totalHints    ?? 0) + hintsUsed,
-      winsNoHints:   (d.winsNoHints   ?? 0) + (hintsUsed === 0 ? 1 : 0),
-      currentStreak: (d.currentStreak ?? 0) + 1,
-      longestStreak: Math.max(d.longestStreak ?? 0, (d.currentStreak ?? 0) + 1),
-    }));
-  }, [updateStats]);
+    // Load current stats BEFORE updating so we can detect a new personal record
+    const all = await loadRemoteStats(auth.user.id);
+    const prev = all[diff];
+    const prevBest = prev?.best ?? Infinity;
+    const isNewRecord = time < prevBest;
+
+    // Save updated stats
+    await saveRemoteStats(auth.user.id, diff, {
+      ...(prev ?? emptyDiffStats()),
+      won:           (prev?.won           ?? 0) + 1,
+      totalTime:     (prev?.totalTime     ?? 0) + time,
+      best:          Math.min(prevBest, time),
+      totalHints:    (prev?.totalHints    ?? 0) + hintsUsed,
+      winsNoHints:   (prev?.winsNoHints   ?? 0) + (hintsUsed === 0 ? 1 : 0),
+      currentStreak: (prev?.currentStreak ?? 0) + 1,
+      longestStreak: Math.max(prev?.longestStreak ?? 0, (prev?.currentStreak ?? 0) + 1),
+    });
+
+    // Always check global rank for THIS game's time — not just on personal bests.
+    // A non-PB time can still crack the global top 10.
+    const globalRank = await getRankForTime(auth.user.id, diff, time);
+
+    setWinInfo({ isNewRecord, globalRank, time, difficulty: diff, hintsUsed });
+    setScreen('win');
+  }, [auth.user]);
 
   const handleAbandon = useCallback(async (diff) => {
     await updateStats(diff, (d) => ({
@@ -108,6 +116,18 @@ export default function App() {
           onHome={() => setScreen('home')}
           onAbandon={handleAbandon}
           onComplete={handleComplete}
+          theme={theme}
+        />
+      )}
+      {screen === 'win'   && winInfo && (
+        <WinScreen
+          winInfo={winInfo}
+          onPlayAgain={() => {
+            setScreen('game');
+            setResuming(false);
+          }}
+          onHome={() => setScreen('home')}
+          onViewStats={() => setScreen('stats')}
           theme={theme}
         />
       )}

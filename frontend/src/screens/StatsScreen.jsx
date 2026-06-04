@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ThemeToggle from '../components/ThemeToggle';
 import { encodeStats, decodeStats } from '../logic/statsCodec';
 import { supabase } from '../lib/supabase';
+import { getUserPercentile } from '../lib/statsService';
 import styles from './StatsScreen.module.css';
 
 const DIFFICULTIES = ['easy', 'medium', 'hard', 'expert', 'insane'];
@@ -31,7 +32,7 @@ function StatRow({ label, value }) {
   );
 }
 
-function DiffStats({ d }) {
+function DiffStats({ d, percentile }) {
   const won  = d?.won ?? d?.played ?? 0;
   const lost = d?.lost ?? 0;
 
@@ -56,6 +57,9 @@ function DiffStats({ d }) {
         <p className={styles.groupLabel}>Time</p>
         <StatRow label="Best time"    value={formatTime(d.best)} />
         <StatRow label="Average time" value={formatTime(Math.round(d.totalTime / won))} />
+        {percentile !== undefined && (
+          <StatRow label="Global rank" value={`Top ${percentile}%`} />
+        )}
       </div>
       <div className={styles.statsGroup}>
         <p className={styles.groupLabel}>Streaks</p>
@@ -74,6 +78,7 @@ function DiffStats({ d }) {
 export default function StatsScreen({ onBack, theme, getStats, userId }) {
   const [stats, setStats]           = useState(null);
   const [activeTab, setActiveTab]   = useState('easy');
+  const [percentiles, setPercentiles] = useState({});
   const [exported, setExported]     = useState('');
   const [importText, setImportText] = useState('');
   const [importMsg, setImportMsg]   = useState(null);
@@ -84,6 +89,18 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
       .then(data => setStats(data ?? {}))
       .catch(() => setStats({}));
   }, [getStats]);
+
+  // Fetch percentiles for all difficulties lazily
+  useEffect(() => {
+    if (!userId) return;
+    const DIFFICULTIES_LIST = ['easy', 'medium', 'hard', 'expert', 'insane'];
+    DIFFICULTIES_LIST.forEach(async (diff) => {
+      const pct = await getUserPercentile(userId, diff).catch(() => null);
+      if (pct !== null) {
+        setPercentiles(prev => ({ ...prev, [diff]: pct }));
+      }
+    });
+  }, [userId]);
 
   const handleExport = () => {
     if (!stats) return;
@@ -158,7 +175,7 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
 
       {/* Stats for active tab */}
       <div className={styles.content}>
-        <DiffStats d={stats?.[activeTab]} />
+        <DiffStats d={stats?.[activeTab]} percentile={percentiles[activeTab]} />
       </div>
 
       {/* Backup section */}

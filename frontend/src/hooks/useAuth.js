@@ -3,11 +3,11 @@
 // Account linking is handled automatically by Supabase when the same
 // email is used across different providers.
 
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
 
 export function useAuth() {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,12 +16,22 @@ export function useAuth() {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+
       // Clean up # left by OAuth redirect after Supabase has processed it
-      if (window.location.hash) {
-        window.history.replaceState(null, '', window.location.pathname);
-      }
+      setTimeout(() => {
+        if (window.location.href.includes("#")) {
+          window.history.replaceState(
+            null,
+            "",
+            // Rebuild URL with just pathname + search params (drops the hash)
+            window.location.pathname + window.location.search,
+          );
+        }
+      }, 0);
     });
 
     return () => subscription.unsubscribe();
@@ -30,7 +40,7 @@ export function useAuth() {
   // ── Google OAuth ───────────────────────────────────────────────────────────
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: window.location.origin + window.location.pathname,
       },
@@ -56,7 +66,7 @@ export function useAuth() {
     const { error } = await supabase.auth.verifyOtp({
       email,
       token,
-      type: 'email',
+      type: "email",
     });
     if (error) throw error;
   };
@@ -68,7 +78,8 @@ export function useAuth() {
   };
 
   return {
-    user, loading,
+    user,
+    loading,
     signInWithGoogle,
     sendOtp,
     verifyOtp,

@@ -9,7 +9,6 @@ const DIFF_COLORS  = {
   easy: '#16a34a', medium: '#d97706', hard: '#dc2626',
   expert: '#7c3aed', insane: '#be123c',
 };
-const STATS_KEY = 'sudoku-stats';
 
 function formatTime(seconds) {
   if (!seconds || !isFinite(seconds)) return '—';
@@ -72,7 +71,7 @@ function DiffStats({ d }) {
   );
 }
 
-export default function StatsScreen({ onBack, theme, getStats, userId, isRemote }) {
+export default function StatsScreen({ onBack, theme, getStats, userId }) {
   const [stats, setStats]           = useState(null);
   const [activeTab, setActiveTab]   = useState('easy');
   const [exported, setExported]     = useState('');
@@ -126,11 +125,7 @@ export default function StatsScreen({ onBack, theme, getStats, userId, isRemote 
 
   const handleClear = async () => {
     if (!window.confirm('Clear all stats? This cannot be undone.')) return;
-    if (isRemote && userId) {
-      await supabase.from('stats').delete().eq('user_id', userId);
-    } else {
-      localStorage.removeItem(STATS_KEY);
-    }
+    await supabase.from('stats').delete().eq('user_id', userId);
     setStats({});
     setExported('');
   };

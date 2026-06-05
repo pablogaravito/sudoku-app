@@ -20,29 +20,7 @@
   justify-content: space-between;
 }
 
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.userName {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.signOutBtn {
-  background: none;
-  border: none;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  padding: 0;
-}
-.signOutBtn:hover { color: var(--color-text); }
+/* Remove old userInfo styles since ProfileMenu replaces them */
 
 .header {
   text-align: center;

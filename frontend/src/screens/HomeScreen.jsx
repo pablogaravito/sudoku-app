@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ThemeToggle from '../components/ThemeToggle';
+import ProfileMenu from '../components/ProfileMenu';
 import { hasSavedGame } from '../hooks/useSudokuGame';
 import styles from './HomeScreen.module.css';
 
@@ -13,7 +14,7 @@ const DIFFICULTIES = [
 
 export default function HomeScreen({
   onStart, onResume, onViewStats, onViewLeaderboard,
-  theme, user, onSignOut,
+  theme, user, username, onSignOut, onChangeUsername,
 }) {
   const [selected, setSelected] = useState('medium');
   const [savedDiff, setSavedDiff] = useState(null);
@@ -26,19 +27,13 @@ export default function HomeScreen({
   return (
     <div className={styles.screen}>
       <div className={styles.topBar}>
-        <div className={styles.userInfo}>
-          {user && (
-            <>
-              <span className={styles.userName}>
-                {user.user_metadata?.full_name ?? user.email}
-              </span>
-              <button className={styles.signOutBtn} onClick={onSignOut}>
-                Sign out
-              </button>
-            </>
-          )}
-        </div>
         <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
+        <ProfileMenu
+          user={user}
+          username={username}
+          onSignOut={onSignOut}
+          onChangeUsername={onChangeUsername}
+        />
       </div>
 
       <header className={styles.header}>
@@ -96,7 +91,6 @@ export default function HomeScreen({
         New Game
       </button>
 
-      {/* Navigation buttons */}
       <div className={styles.navBtns}>
         <button className={styles.navBtn} onClick={onViewStats}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,8 +101,8 @@ export default function HomeScreen({
         </button>
         <button className={styles.navBtn} onClick={onViewLeaderboard}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 15l-2 5H7l-2-5"/><path d="M17 15l2 5h3l2-5"/>
-            <path d="M14 15V9a2 2 0 00-4 0v6"/><circle cx="12" cy="5" r="2"/>
+            <path d="M8 21H5a2 2 0 01-2-2v-2a7 7 0 0114 0v2a2 2 0 01-2 2h-3"/>
+            <circle cx="12" cy="8" r="4"/>
           </svg>
           Leaderboard
         </button>

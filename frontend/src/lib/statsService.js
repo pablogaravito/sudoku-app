@@ -58,17 +58,73 @@ export async function saveRemoteStats(userId, difficulty, stats) {
  * Record a completed game session.
  * Called every time a puzzle is solved.
  */
-export async function insertGameSession(userId, difficulty, time, hintsUsed) {
+export async function insertGameSession(userId, difficulty, time, hintsUsed, wasNewRecord, globalRank) {
   const { error } = await supabase
     .from('game_sessions')
     .insert({
-      user_id:      userId,
+      user_id:        userId,
       difficulty,
       time,
-      hints_used:   hintsUsed,
-      completed_at: new Date().toISOString(),
+      hints_used:     hintsUsed,
+      was_new_record: wasNewRecord,
+      global_rank:    globalRank ?? null,
+      completed_at:   new Date().toISOString(),
     });
   if (error) throw error;
+}
+
+/**
+ * Check if a time is the best this week or this month.
+ * Returns 'week', 'month', or null.
+ *
+ * Thresholds: need 3+ games this week, 5+ games this month
+ * to make the comparison meaningful.
+ */
+export async function checkPeriodBest(userId, difficulty, time) {
+  const now   = new Date();
+
+  // Start of current week (Monday)
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  weekStart.setHours(0, 0, 0, 0);
+
+  // Start of current month
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // Fetch all sessions this month (covers both week and month check)
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('time, completed_at')
+    .eq('user_id', userId)
+    .eq('difficulty', difficulty)
+    .gte('completed_at', monthStart.toISOString())
+    .order('completed_at', { ascending: true });
+
+  if (error || !data?.length) return null;
+
+  const weekSessions  = data.filter(s => new Date(s.completed_at) >= weekStart);
+  const monthSessions = data;
+
+  // Exclude the current game from comparisons
+  // (we compare against previous games, not including this one)
+  const prevWeekTimes  = weekSessions.slice(0, -1).map(s => s.time);
+  const prevMonthTimes = monthSessions.slice(0, -1).map(s => s.time);
+
+  // Check week first (more specific)
+  // Need at least 3 previous games this week to compare
+  if (prevWeekTimes.length >= 2) {
+    const weekBest = Math.min(...prevWeekTimes);
+    if (time < weekBest) return 'week';
+  }
+
+  // Check month
+  // Need at least 5 previous games this month to compare
+  if (prevMonthTimes.length >= 4) {
+    const monthBest = Math.min(...prevMonthTimes);
+    if (time < monthBest) return 'month';
+  }
+
+  return null;
 }
 
 /**

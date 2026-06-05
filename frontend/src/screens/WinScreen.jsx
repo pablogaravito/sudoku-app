@@ -24,7 +24,7 @@ function getRankSuffix(n) {
 }
 
 export default function WinScreen({ winInfo, onPlayAgain, onHome, onViewStats, theme }) {
-  const { isNewRecord, globalRank, time, difficulty, hintsUsed } = winInfo;
+  const { isNewRecord, globalRank, periodBest, time, difficulty, hintsUsed } = winInfo;
 
   // Pick the main celebration message
   const isTopThree = globalRank && globalRank <= 3;
@@ -59,6 +59,16 @@ export default function WinScreen({ winInfo, onPlayAgain, onHome, onViewStats, t
           {isNewRecord && (
             <div className={styles.badge}>
               🏆 New personal best!
+            </div>
+          )}
+          {!isNewRecord && periodBest === 'week' && (
+            <div className={styles.badge}>
+              📅 Best time this week!
+            </div>
+          )}
+          {!isNewRecord && periodBest === 'month' && (
+            <div className={styles.badge}>
+              📆 Best time this month!
             </div>
           )}
           {isTopTen && !isTopThree && (

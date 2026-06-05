@@ -216,10 +216,10 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
   }, [userId]);
 
   // Fetch sessions + day stats when tab changes
+  // We check against null (not yet fetched) vs [] (fetched but empty)
   useEffect(() => {
     if (!userId) return;
-    // Only fetch if we don't have it yet
-    if (sessions[activeTab]) return;
+    if (sessions[activeTab] !== undefined) return; // already fetched
 
     Promise.all([
       getRecentSessions(userId, activeTab, 20),
@@ -228,7 +228,7 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
       setSessions(prev => ({ ...prev, [activeTab]: sess }));
       setDayStats(prev  => ({ ...prev, [activeTab]: days }));
     }).catch(() => {});
-  }, [userId, activeTab]);
+  }, [userId, activeTab, sessions]);
 
   const handleClear = async () => {
     if (!window.confirm('Clear all stats? This cannot be undone.')) return;
@@ -237,7 +237,7 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
       supabase.from('game_sessions').delete().eq('user_id', userId),
     ]);
     setStats({});
-    setSessions({});
+    setSessions({});  // reset to empty — undefined keys = needs refetch
     setDayStats({});
   };
 

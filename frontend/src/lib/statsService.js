@@ -52,7 +52,78 @@ export async function saveRemoteStats(userId, difficulty, stats) {
   if (error) throw error;
 }
 
-// ─── User preferences ─────────────────────────────────────────────────────────
+// ─── Game sessions ────────────────────────────────────────────────────────────
+
+/**
+ * Record a completed game session.
+ * Called every time a puzzle is solved.
+ */
+export async function insertGameSession(userId, difficulty, time, hintsUsed) {
+  const { error } = await supabase
+    .from('game_sessions')
+    .insert({
+      user_id:      userId,
+      difficulty,
+      time,
+      hints_used:   hintsUsed,
+      completed_at: new Date().toISOString(),
+    });
+  if (error) throw error;
+}
+
+/**
+ * Get recent sessions for a user + difficulty, newest first.
+ * Used for the progression chart.
+ */
+export async function getRecentSessions(userId, difficulty, limit = 20) {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('time, hints_used, completed_at')
+    .eq('user_id', userId)
+    .eq('difficulty', difficulty)
+    .order('completed_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return (data ?? []).reverse(); // oldest first for charting
+}
+
+/**
+ * Get day-of-week stats for a user + difficulty.
+ * Returns average time per day (0 = Sunday ... 6 = Saturday).
+ * Only includes days with at least one session.
+ */
+export async function getDayOfWeekStats(userId, difficulty) {
+  const { data, error } = await supabase
+    .from('game_sessions')
+    .select('time, completed_at')
+    .eq('user_id', userId)
+    .eq('difficulty', difficulty);
+
+  if (error) throw error;
+  if (!data?.length) return [];
+
+  // Group by day of week client-side
+  // (Supabase doesn't support EXTRACT in JS SDK filters easily)
+  const days = Array.from({ length: 7 }, (_, i) => ({
+    day: i,
+    label: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
+    times: [],
+  }));
+
+  for (const session of data) {
+    const dayOfWeek = new Date(session.completed_at).getDay();
+    days[dayOfWeek].times.push(session.time);
+  }
+
+  return days.map(d => ({
+    ...d,
+    avg: d.times.length
+      ? Math.round(d.times.reduce((a, b) => a + b, 0) / d.times.length)
+      : null,
+    count: d.times.length,
+  }));
+}
 
 /**
  * Load preferences from the profiles table.

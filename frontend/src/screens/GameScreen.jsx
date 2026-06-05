@@ -128,7 +128,7 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
       </header>
 
       <div className={`${styles.boardWrapper} ${!timer.running ? styles.paused : ''}`}>
-        {!timer.running && !showLeaveModal && (
+        {!timer.running && !showLeaveModal && !game.isComplete && (
           <div className={styles.pauseOverlay} onClick={timer.toggle}>
             <span>Paused — tap to resume</span>
           </div>

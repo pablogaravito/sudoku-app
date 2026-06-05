@@ -60,7 +60,7 @@ export default function App() {
     const isNewRecord = time < prevBest;
 
     const [globalRank, periodBest] = await Promise.all([
-      getRankForTime(auth.user.id, diff, time),
+      isNewRecord ? getRankForTime(auth.user.id, diff, time) : Promise.resolve(null),
       checkPeriodBest(auth.user.id, diff, time),
     ]);
 

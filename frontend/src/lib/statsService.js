@@ -227,10 +227,10 @@ export async function getLeaderboard(difficulty, limit = 10) {
 
 /**
  * Get the global rank for a specific time on a difficulty.
- * Counts how many players have a BETTER (lower) time than `time`.
- * We pass the actual game time rather than the stored best, so this
- * correctly ranks non-PB times too (e.g. still top-10 globally).
- * Returns null on error.
+ * Only call this when the time is a new personal record —
+ * otherwise the player's rank hasn't changed and showing it
+ * would be misleading (e.g. "You're #2!" when you're already #1).
+ * Returns null if rank is outside top 10.
  */
 export async function getRankForTime(userId, difficulty, time) {
   const { count, error } = await supabase
@@ -240,7 +240,8 @@ export async function getRankForTime(userId, difficulty, time) {
     .lt('best_time', time);
 
   if (error) return null;
-  return (count ?? 0) + 1;
+  const rank = (count ?? 0) + 1;
+  return rank <= 10 ? rank : null;
 }
 
 /**

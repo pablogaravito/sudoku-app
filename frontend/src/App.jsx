@@ -6,6 +6,7 @@ import WinScreen from './screens/WinScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import AuthScreen from './screens/AuthScreen';
 import UsernameScreen from './screens/UsernameScreen';
+import TopBar from './components/TopBar';
 import { useTheme } from './hooks/useTheme';
 import { useAuth } from './hooks/useAuth';
 import { useProfile } from './hooks/useProfile';
@@ -25,22 +26,20 @@ function emptyDiffStats() {
 }
 
 export default function App() {
-  const [screen, setScreen]         = useState('home');
-  const [difficulty, setDifficulty] = useState('medium');
-  const [resuming, setResuming]     = useState(false);
-  const [winInfo, setWinInfo]       = useState(null);
+  const [screen, setScreen]               = useState('home');
+  const [difficulty, setDifficulty]       = useState('medium');
+  const [resuming, setResuming]           = useState(false);
+  const [winInfo, setWinInfo]             = useState(null);
   const [changingUsername, setChangingUsername] = useState(false);
 
   const auth    = useAuth();
   const theme   = useTheme(auth.user);
   const profile = useProfile(auth.user?.id);
 
-  // ── Load stats ─────────────────────────────────────────────────────────────
   const getStats = useCallback(async () => {
     return loadRemoteStats(auth.user.id);
   }, [auth.user]);
 
-  // ── Game events ────────────────────────────────────────────────────────────
   const handleStart = useCallback((diff) => {
     setDifficulty(diff);
     setResuming(false);
@@ -93,11 +92,9 @@ export default function App() {
     setScreen('home');
   }, [auth.user]);
 
-  // ── Username handling ──────────────────────────────────────────────────────
   const handleUsernameComplete = useCallback((newUsername) => {
     if (newUsername) profile.updateUsername(newUsername);
     setChangingUsername(false);
-    // If we were on username screen as first-login step, go home
     setScreen('home');
   }, [profile]);
 
@@ -105,53 +102,55 @@ export default function App() {
   if (auth.loading || profile.loading) return null;
 
   if (!auth.user) {
-    return (
-      <AuthScreen
-        onGoogleSignIn={auth.signInWithGoogle}
-        onSendOtp={auth.sendOtp}
-        onVerifyOtp={auth.verifyOtp}
-        theme={theme}
-      />
-    );
+    return <AuthScreen
+      onGoogleSignIn={auth.signInWithGoogle}
+      onSendOtp={auth.sendOtp}
+      onVerifyOtp={auth.verifyOtp}
+      theme={theme}
+    />;
   }
 
-  // First login — no username set yet
+  // First login — no username set
   if (!profile.profile?.username && !changingUsername) {
-    return (
-      <UsernameScreen
-        user={auth.user}
-        onComplete={handleUsernameComplete}
-        theme={theme}
-        isChanging={false}
-      />
-    );
+    return <UsernameScreen
+      user={auth.user}
+      onComplete={handleUsernameComplete}
+      theme={theme}
+      isChanging={false}
+    />;
   }
 
   // Changing username
   if (changingUsername) {
-    return (
-      <UsernameScreen
-        user={{ ...auth.user, username: profile.profile?.username }}
-        onComplete={handleUsernameComplete}
-        theme={theme}
-        isChanging={true}
-      />
-    );
+    return <UsernameScreen
+      user={{ ...auth.user, username: profile.profile?.username }}
+      onComplete={handleUsernameComplete}
+      theme={theme}
+      isChanging={true}
+    />;
   }
+
+  // The persistent TopBar shows on all screens except game
+  const showTopBar = screen !== 'game';
 
   return (
     <>
+      {showTopBar && (
+        <TopBar
+          user={auth.user}
+          username={profile.profile?.username}
+          theme={theme}
+          onSignOut={auth.signOut}
+          onChangeUsername={() => setChangingUsername(true)}
+        />
+      )}
+
       {screen === 'home' && (
         <HomeScreen
           onStart={handleStart}
           onResume={handleResume}
           onViewStats={() => setScreen('stats')}
           onViewLeaderboard={() => setScreen('leaderboard')}
-          theme={theme}
-          user={auth.user}
-          username={profile.profile?.username}
-          onSignOut={auth.signOut}
-          onChangeUsername={() => setChangingUsername(true)}
         />
       )}
       {screen === 'game' && (
@@ -162,7 +161,6 @@ export default function App() {
           onHome={() => setScreen('home')}
           onAbandon={handleAbandon}
           onComplete={handleComplete}
-          theme={theme}
         />
       )}
       {screen === 'win' && winInfo && (
@@ -177,14 +175,12 @@ export default function App() {
       {screen === 'leaderboard' && (
         <LeaderboardScreen
           onBack={() => setScreen('home')}
-          theme={theme}
           userId={auth.user?.id}
         />
       )}
       {screen === 'stats' && (
         <StatsScreen
           onBack={() => setScreen('home')}
-          theme={theme}
           getStats={getStats}
           userId={auth.user?.id}
         />

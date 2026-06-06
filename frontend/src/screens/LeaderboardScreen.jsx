@@ -3,7 +3,6 @@
 // The current user's row is highlighted even if outside top 10.
 
 import { useState, useEffect } from 'react';
-import ThemeToggle from '../components/ThemeToggle';
 import { getLeaderboard, getRankForTime } from '../lib/statsService';
 import { supabase } from '../lib/supabase';
 import styles from './LeaderboardScreen.module.css';
@@ -22,7 +21,7 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export default function LeaderboardScreen({ onBack, theme, userId }) {
+export default function LeaderboardScreen({ onBack, userId }) {
   const [activeTab, setActiveTab]   = useState('easy');
   const [entries, setEntries]       = useState([]);
   const [myEntry, setMyEntry]       = useState(null);
@@ -73,7 +72,7 @@ export default function LeaderboardScreen({ onBack, theme, userId }) {
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={onBack}>← Back</button>
         <h1 className={styles.title}>Leaderboard</h1>
-        <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
+        <div />
       </header>
 
       {/* Difficulty tabs */}

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import ThemeToggle from '../components/ThemeToggle';
 import { supabase } from '../lib/supabase';
 import { getUserPercentile, getRecentSessions, getDayOfWeekStats } from '../lib/statsService';
 import styles from './StatsScreen.module.css';
@@ -193,7 +192,7 @@ function DiffStats({ d, percentile, sessions, dayStats, color }) {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export default function StatsScreen({ onBack, theme, getStats, userId }) {
+export default function StatsScreen({ onBack, getStats, userId }) {
   const [stats, setStats]         = useState(null);
   const [activeTab, setActiveTab] = useState('easy');
   const [percentiles, setPercentiles] = useState({});
@@ -250,7 +249,7 @@ export default function StatsScreen({ onBack, theme, getStats, userId }) {
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={onBack}>← Back</button>
         <h1 className={styles.title}>My Stats</h1>
-        <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
+        <div />
       </header>
 
       <div className={styles.tabs} role="tablist">

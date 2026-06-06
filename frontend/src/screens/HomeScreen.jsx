@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import ThemeToggle from '../components/ThemeToggle';
-import ProfileMenu from '../components/ProfileMenu';
 import { hasSavedGame } from '../hooks/useSudokuGame';
 import styles from './HomeScreen.module.css';
 
@@ -12,10 +10,7 @@ const DIFFICULTIES = [
   { key: 'insane', label: 'Insane', desc: '~23 clues', color: '#be123c' },
 ];
 
-export default function HomeScreen({
-  onStart, onResume, onViewStats, onViewLeaderboard,
-  theme, user, username, onSignOut, onChangeUsername,
-}) {
+export default function HomeScreen({ onStart, onResume, onViewStats, onViewLeaderboard }) {
   const [selected, setSelected] = useState('medium');
   const [savedDiff, setSavedDiff] = useState(null);
 
@@ -26,16 +21,6 @@ export default function HomeScreen({
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topBar}>
-        <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
-        <ProfileMenu
-          user={user}
-          username={username}
-          onSignOut={onSignOut}
-          onChangeUsername={onChangeUsername}
-        />
-      </div>
-
       <header className={styles.header}>
         <h1 className={styles.title}>Sudoku</h1>
         <p className={styles.subtitle}>A clean puzzle for a clear mind</p>

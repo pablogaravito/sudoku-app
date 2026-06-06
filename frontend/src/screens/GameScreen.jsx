@@ -3,7 +3,6 @@ import { useSudokuGame, saveGame, deleteSavedGame } from '../hooks/useSudokuGame
 import { useTimer } from '../hooks/useTimer';
 import SudokuBoard from '../components/SudokuBoard';
 import NumberPad from '../components/NumberPad';
-import ThemeToggle from '../components/ThemeToggle';
 import styles from './GameScreen.module.css';
 
 function getRemainingCounts(board) {
@@ -18,7 +17,7 @@ const DIFF_COLORS = {
   easy: '#16a34a', medium: '#d97706', hard: '#dc2626', expert: '#7c3aed'
 };
 
-export default function GameScreen({ difficulty, resumeFromSave, onHome, onAbandon, onComplete, theme }) {
+export default function GameScreen({ difficulty, resumeFromSave, onHome, onAbandon, onComplete }) {
   const game  = useSudokuGame(difficulty, resumeFromSave);
   const timer = useTimer();
 
@@ -117,7 +116,6 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
         </div>
 
         <div className={styles.headerRight}>
-          <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />
           <button className={styles.iconBtn} onClick={timer.toggle} aria-label={timer.running ? 'Pause' : 'Resume'}>
             {timer.running
               ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>

@@ -1,0 +1,9 @@
+/* TopBar.module.css */
+
+.bar {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  /* Fixed so it stays put regardless of scroll */
+}

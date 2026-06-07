@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSudokuGame, saveGame, deleteSavedGame } from '../hooks/useSudokuGame';
 import { useTimer } from '../hooks/useTimer';
 import SudokuBoard from '../components/SudokuBoard';
 import NumberPad from '../components/NumberPad';
 import styles from './GameScreen.module.css';
+
+const HINT_TOAST_KEY = 'sudoku-hint-toast-shown';
 
 function getRemainingCounts(board) {
   const counts = { 1:9, 2:9, 3:9, 4:9, 5:9, 6:9, 7:9, 8:9, 9:9 };
@@ -23,6 +25,8 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
 
   // Whether to show the "leave game?" confirmation modal
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showHintToast, setShowHintToast]   = useState(false);
+  const hintToastTimer = useRef(null);
 
   // Start timer on mount, offset by saved elapsed time if resuming
   useEffect(() => {
@@ -98,6 +102,24 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
   };
 
   const remainingCounts = getRemainingCounts(game.board);
+  const hasSelectedCell = game.selectedCell !== null;
+
+  // Wrapped hint handler — shows one-time toast if no cell selected
+  const handleHint = () => {
+    if (!hasSelectedCell && hintsLeft > 0) {
+      const alreadyShown = localStorage.getItem(HINT_TOAST_KEY);
+      if (!alreadyShown) {
+        setShowHintToast(true);
+        localStorage.setItem(HINT_TOAST_KEY, '1');
+        clearTimeout(hintToastTimer.current);
+        hintToastTimer.current = setTimeout(() => setShowHintToast(false), 4000);
+      }
+      return;
+    }
+    game.useHint();
+  };
+
+  const { hintsLeft, hintsAllowed } = game;
 
   return (
     <div className={styles.screen}>
@@ -145,13 +167,21 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
         onErase={game.eraseCell}
         onUndo={game.undo}
         onToggleNotes={game.toggleNotesMode}
-        onHint={game.useHint}
+        onHint={handleHint}
         notesMode={game.notesMode}
         canUndo={game.canUndo}
-        hintsLeft={game.hintsLeft}
-        hintsAllowed={game.hintsAllowed}
+        hintsLeft={hintsLeft}
+        hintsAllowed={hintsAllowed}
+        hasSelectedCell={hasSelectedCell}
         remainingCounts={remainingCounts}
       />
+
+      {/* One-time hint toast */}
+      {showHintToast && (
+        <div className={styles.hintToast} onClick={() => setShowHintToast(false)}>
+          👆 Select a cell first, then tap Hint to reveal it
+        </div>
+      )}
 
       {/* ── Leave confirmation modal ─────────────────────────────────────── */}
       {showLeaveModal && (

@@ -13,8 +13,20 @@ export default function NumberPad({
   canUndo,
   hintsLeft,
   hintsAllowed,
+  hasSelectedCell,  // whether a cell is currently selected
   remainingCounts,
 }) {
+  const hintLabel = hintsLeft === 0
+    ? `No hints`
+    : !hasSelectedCell
+    ? `Hint — select a cell`
+    : `Hint ${hintsLeft}/${hintsAllowed}`;
+
+  const hintTitle = hintsLeft === 0
+    ? 'No hints left'
+    : !hasSelectedCell
+    ? 'Select a cell first, then tap Hint to reveal it'
+    : `${hintsLeft} of ${hintsAllowed} hints left · using hints disqualifies from leaderboard`;
   return (
     <div className={styles.pad}>
       {/* Number buttons 1–9 */}
@@ -66,11 +78,16 @@ export default function NumberPad({
           <span>Notes{notesMode ? ' ON' : ''}</span>
         </button>
 
-        <button className={styles.actionBtn} onClick={onHint} disabled={hintsLeft === 0} title={hintsLeft === 0 ? 'No hints left' : `Hint (${hintsLeft}/${hintsAllowed} left) — using hints disqualifies from leaderboard`}>
+        <button
+          className={`${styles.actionBtn} ${!hasSelectedCell && hintsLeft > 0 ? styles.hintPrompt : ''}`}
+          onClick={onHint}
+          disabled={hintsLeft === 0}
+          title={hintTitle}
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/>
           </svg>
-          <span>Hint {hintsLeft !== undefined ? `${hintsLeft}/${hintsAllowed}` : ''}</span>
+          <span>{hintLabel}</span>
         </button>
       </div>
     </div>

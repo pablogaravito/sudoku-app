@@ -71,7 +71,10 @@ export default function LeaderboardScreen({ onBack, userId }) {
     <div className={styles.screen}>
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={onBack}>← Back</button>
-        <h1 className={styles.title}>Leaderboard</h1>
+        <div className={styles.titleWrap}>
+          <h1 className={styles.title}>Leaderboard</h1>
+          <p className={styles.subtitle}>Clean solves · no hints used</p>
+        </div>
         <div />
       </header>
 

@@ -20,6 +20,7 @@ export async function loadRemoteStats(userId) {
       won:           row.won,
       lost:          row.lost,
       best:          row.best_time,
+      bestCleanTime: row.best_clean_time,
       totalTime:     row.total_time,
       winsNoHints:   row.wins_no_hints,
       totalHints:    row.total_hints,
@@ -34,17 +35,18 @@ export async function saveRemoteStats(userId, difficulty, stats) {
   const { error } = await supabase
     .from('stats')
     .upsert({
-      user_id:        userId,
+      user_id:         userId,
       difficulty,
-      won:            stats.won           ?? 0,
-      lost:           stats.lost          ?? 0,
-      best_time:      stats.best === Infinity ? null : (stats.best ?? null),
-      total_time:     stats.totalTime     ?? 0,
-      wins_no_hints:  stats.winsNoHints   ?? 0,
-      total_hints:    stats.totalHints    ?? 0,
-      current_streak: stats.currentStreak ?? 0,
-      longest_streak: stats.longestStreak ?? 0,
-      updated_at:     new Date().toISOString(),
+      won:             stats.won            ?? 0,
+      lost:            stats.lost           ?? 0,
+      best_time:       stats.best === Infinity ? null : (stats.best ?? null),
+      best_clean_time: stats.bestCleanTime === Infinity ? null : (stats.bestCleanTime ?? null),
+      total_time:      stats.totalTime      ?? 0,
+      wins_no_hints:   stats.winsNoHints    ?? 0,
+      total_hints:     stats.totalHints     ?? 0,
+      current_streak:  stats.currentStreak  ?? 0,
+      longest_streak:  stats.longestStreak  ?? 0,
+      updated_at:      new Date().toISOString(),
     }, {
       onConflict: 'user_id,difficulty',
     });

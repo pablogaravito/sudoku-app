@@ -84,6 +84,16 @@
   color: #fcd34d;
 }
 
+.badgeWarning {
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .hints {
   font-size: 13px;
   color: var(--color-text-muted);

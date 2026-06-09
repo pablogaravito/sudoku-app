@@ -71,18 +71,9 @@ export default function GameScreen({ difficulty, resumeFromSave, userId, onHome,
   }, [timer.running]);
 
   // ── Show loading until BOTH server puzzle AND game state are ready ──────────
-  const gameReady = !!(game?.board);
-
-  console.log('GameScreen render:', {
-    puzzleLoading,
-    puzzleError,
-    serverPuzzle: !!serverPuzzle,
-    puzzleId: !!puzzleId,
-    puzzleReady,
-    gameReady,
-    gameBoard: !!game?.board,
-    gameState: game,
-  });
+  // rawState is null until the useEffect in useSudokuGame fires with the real puzzle
+  // board is always truthy (fallback empty board) so we can't use it as the ready check
+  const gameReady = game.rawState !== null;
 
   if (!resumeFromSave && (puzzleLoading || !gameReady)) {
     return (

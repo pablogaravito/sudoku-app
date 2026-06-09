@@ -29,13 +29,18 @@
   padding: 4px 2px;
 }
 
-.numBtn:hover:not(:disabled) {
-  background: #eff6ff;
-  border-color: var(--color-primary);
-}
-
 .numBtn:active:not(:disabled) {
   transform: scale(0.94);
+  background: var(--bg-card);
+  border-color: var(--color-border);
+}
+
+/* Only apply hover on real pointer devices — prevents sticky hover on mobile */
+@media (hover: hover) {
+  .numBtn:hover:not(:disabled) {
+    background: #eff6ff;
+    border-color: var(--color-primary);
+  }
 }
 
 .numBtn.done {
@@ -100,4 +105,10 @@
   background: #eff6ff;
   border-color: var(--color-primary);
   color: var(--color-primary);
+}
+
+/* Hint button when no cell is selected — subtle pulse to draw attention */
+.hintPrompt {
+  color: var(--color-text-muted);
+  font-style: italic;
 }

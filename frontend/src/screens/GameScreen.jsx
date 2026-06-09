@@ -4,6 +4,7 @@ import { useTimer } from '../hooks/useTimer';
 import { usePuzzle, submitPuzzle } from '../hooks/usePuzzle';
 import SudokuBoard from '../components/SudokuBoard';
 import NumberPad from '../components/NumberPad';
+import ThemeToggle from '../components/ThemeToggle';
 import styles from './GameScreen.module.css';
 
 const HINT_TOAST_KEY = 'sudoku-hint-toast-shown';
@@ -20,7 +21,7 @@ const DIFF_COLORS = {
   easy: '#16a34a', medium: '#d97706', hard: '#dc2626', expert: '#7c3aed', insane: '#be123c',
 };
 
-export default function GameScreen({ difficulty, resumeFromSave, userId, onHome, onAbandon, onComplete }) {
+export default function GameScreen({ difficulty, resumeFromSave, userId, onHome, onAbandon, onComplete, theme }) {
   const { puzzle: serverPuzzle, puzzleId, loading: puzzleLoading, error: puzzleError }
     = usePuzzle(resumeFromSave ? null : difficulty, resumeFromSave ? null : userId);
 
@@ -152,6 +153,7 @@ export default function GameScreen({ difficulty, resumeFromSave, userId, onHome,
           <span className={styles.timer} aria-live="polite">{timer.formatted}</span>
         </div>
         <div className={styles.headerRight}>
+          {theme && <ThemeToggle theme={theme.theme} onToggle={theme.toggle} />}
           <button className={styles.iconBtn} onClick={timer.toggle} aria-label={timer.running ? 'Pause' : 'Resume'}>
             {timer.running
               ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>

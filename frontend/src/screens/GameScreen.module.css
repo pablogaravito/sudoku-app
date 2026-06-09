@@ -75,7 +75,8 @@
 }
 
 .pauseOverlay span {
-  background: rgba(255,255,255,0.9);
+  background: var(--bg-card);
+  color: var(--color-text);
   padding: 10px 20px;
   border-radius: var(--radius-md);
   font-size: 14px;

@@ -202,6 +202,7 @@ export default function App() {
           difficulty={difficulty}
           resumeFromSave={resuming}
           userId={auth.user?.id}
+          theme={theme}
           onHome={() => setScreen('home')}
           onAbandon={handleAbandon}
           onComplete={handleComplete}

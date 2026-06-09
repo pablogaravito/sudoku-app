@@ -12,11 +12,11 @@ const DIFFICULTIES = [
 
 const SUBTITLE_PHRASES = [
   "Ready to strain your brain?",
-  "Life has no logic. Luckily, this game does.",
+  "Life has no logic. Luckily, this game does",
   "Just one more puzzle...",
-  "Keep calm and fill the cells.",
-  "Let the overthinking begin.",
-  "Let's see if that big brain still works.",
+  "Keep calm and fill the cells",
+  "Let the overthinking begin",
+  "Let's see if that big brain still works",
 ];
 
 export default function HomeScreen({

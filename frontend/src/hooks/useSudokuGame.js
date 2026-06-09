@@ -1,19 +1,24 @@
-import { useState, useEffect, useCallback } from "react";
-import { generatePuzzle } from "../logic/generator";
-import { isSolved } from "../logic/validator";
+import { useState, useEffect, useCallback } from 'react';
+import { generatePuzzle } from '../logic/generator';
+import { isSolved } from '../logic/validator';
 
-// How many hints are allowed per difficulty
 const HINTS_ALLOWED = { easy: 5, medium: 3, hard: 2, expert: 1, insane: 1 };
-
-// localStorage key for saving in-progress games
 const SAVE_KEY = (diff) => `sudoku-saved-${diff}`;
 
-function createInitialState(difficulty = "medium") {
-  const { puzzle, solution } = generatePuzzle(difficulty);
+// puzzle and solution can be provided externally (from server)
+// or generated locally as fallback
+function createInitialState(difficulty = 'medium', externalPuzzle = null, externalSolution = null) {
+  let puzzle, solution;
+  if (externalPuzzle && externalSolution) {
+    puzzle   = externalPuzzle;
+    solution = Object.freeze(externalSolution.map(r => Object.freeze([...r])));
+  } else {
+    ({ puzzle, solution } = generatePuzzle(difficulty));
+  }
   return {
     puzzle,
     solution,
-    board: puzzle.map((r) => [...r]),
+    board: puzzle.map(r => [...r]),
     notes: {},
     selectedCell: null,
     notesMode: false,
@@ -22,7 +27,7 @@ function createInitialState(difficulty = "medium") {
     moveHistory: [],
     hintsUsed: 0,
     hintsAllowed: HINTS_ALLOWED[difficulty] ?? 3,
-    elapsedAtSave: 0, // timer seconds carried over from a resumed save
+    elapsedAtSave: 0,
   };
 }
 
@@ -31,20 +36,20 @@ function createInitialState(difficulty = "medium") {
 export function saveGame(state, elapsedSeconds) {
   try {
     const payload = {
-      puzzle: state.puzzle,
-      solution: state.solution.map((r) => [...r]), // unfreeze for JSON
-      board: state.board,
-      notes: state.notes,
-      difficulty: state.difficulty,
-      moveHistory: state.moveHistory,
-      hintsUsed: state.hintsUsed,
+      puzzle:       state.puzzle,
+      solution:     state.solution.map(r => [...r]), // unfreeze for JSON
+      board:        state.board,
+      notes:        state.notes,
+      difficulty:   state.difficulty,
+      moveHistory:  state.moveHistory,
+      hintsUsed:    state.hintsUsed,
       hintsAllowed: state.hintsAllowed,
-      elapsed: elapsedSeconds,
-      savedAt: Date.now(),
+      elapsed:      elapsedSeconds,
+      savedAt:      Date.now(),
     };
     localStorage.setItem(SAVE_KEY(state.difficulty), JSON.stringify(payload));
   } catch {
-    console.warn("Could not save game");
+    console.warn('Could not save game');
   }
 }
 
@@ -68,16 +73,16 @@ export function hasSavedGame(difficulty) {
 
 function stateFromSave(save) {
   return {
-    puzzle: save.puzzle,
-    solution: Object.freeze(save.solution.map((r) => Object.freeze([...r]))),
-    board: save.board,
-    notes: save.notes,
+    puzzle:       save.puzzle,
+    solution:     Object.freeze(save.solution.map(r => Object.freeze([...r]))),
+    board:        save.board,
+    notes:        save.notes,
     selectedCell: null,
-    notesMode: false,
-    difficulty: save.difficulty,
-    isComplete: false,
-    moveHistory: save.moveHistory,
-    hintsUsed: save.hintsUsed,
+    notesMode:    false,
+    difficulty:   save.difficulty,
+    isComplete:   false,
+    moveHistory:  save.moveHistory,
+    hintsUsed:    save.hintsUsed,
     hintsAllowed: save.hintsAllowed,
     elapsedAtSave: save.elapsed,
   };
@@ -85,48 +90,36 @@ function stateFromSave(save) {
 
 // ─── The hook ─────────────────────────────────────────────────────────────────
 
-export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
+export function useSudokuGame(difficulty = 'medium', resumeFromSave = false, externalPuzzle = null, externalSolution = null) {
   const [state, setState] = useState(() => {
     if (resumeFromSave) {
       const save = loadSavedGame(difficulty);
       if (save) return stateFromSave(save);
     }
-    return createInitialState(difficulty);
+    return createInitialState(difficulty, externalPuzzle, externalSolution);
   });
 
   const {
-    puzzle,
-    solution,
-    board,
-    notes,
-    selectedCell,
-    notesMode,
-    isComplete,
-    moveHistory,
-    hintsUsed,
-    hintsAllowed,
+    puzzle, solution, board, notes,
+    selectedCell, notesMode, isComplete, moveHistory,
+    hintsUsed, hintsAllowed,
   } = state;
 
-  const newGame = useCallback(
-    (diff = difficulty) => {
-      deleteSavedGame(diff);
-      setState(createInitialState(diff));
-    },
-    [difficulty],
-  );
+  const newGame = useCallback((diff = difficulty) => {
+    deleteSavedGame(diff);
+    setState(createInitialState(diff));
+  }, [difficulty]);
 
   const selectCell = useCallback((row, col) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
-      selectedCell:
-        prev.selectedCell?.[0] === row && prev.selectedCell?.[1] === col
-          ? null
-          : [row, col],
+      selectedCell: prev.selectedCell?.[0] === row && prev.selectedCell?.[1] === col
+        ? null : [row, col],
     }));
   }, []);
 
   const placeNumber = useCallback((num) => {
-    setState((prev) => {
+    setState(prev => {
       if (!prev.selectedCell || prev.isComplete) return prev;
       const [r, c] = prev.selectedCell;
       if (prev.puzzle[r][c] !== 0) return prev;
@@ -135,23 +128,18 @@ export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
         const key = `${r},${c}`;
         const existing = prev.notes[key] ?? [];
         const newNotes = existing.includes(num)
-          ? existing.filter((n) => n !== num)
+          ? existing.filter(n => n !== num)
           : [...existing, num].sort();
         return { ...prev, notes: { ...prev.notes, [key]: newNotes } };
       }
 
-      const newBoard = prev.board.map((row) => [...row]);
+      const newBoard = prev.board.map(row => [...row]);
       newBoard[r][c] = num;
       const newNotes = { ...prev.notes };
       delete newNotes[`${r},${c}`];
       const newHistory = [
         ...prev.moveHistory,
-        {
-          r,
-          c,
-          prevValue: prev.board[r][c],
-          prevNotes: prev.notes[`${r},${c}`] ?? [],
-        },
+        { r, c, prevValue: prev.board[r][c], prevNotes: prev.notes[`${r},${c}`] ?? [] },
       ];
       return {
         ...prev,
@@ -164,38 +152,28 @@ export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
   }, []);
 
   const eraseCell = useCallback(() => {
-    setState((prev) => {
+    setState(prev => {
       if (!prev.selectedCell || prev.isComplete) return prev;
       const [r, c] = prev.selectedCell;
       if (prev.puzzle[r][c] !== 0) return prev;
-      const newBoard = prev.board.map((row) => [...row]);
+      const newBoard = prev.board.map(row => [...row]);
       newBoard[r][c] = 0;
       const newNotes = { ...prev.notes };
       delete newNotes[`${r},${c}`];
       const newHistory = [
         ...prev.moveHistory,
-        {
-          r,
-          c,
-          prevValue: prev.board[r][c],
-          prevNotes: prev.notes[`${r},${c}`] ?? [],
-        },
+        { r, c, prevValue: prev.board[r][c], prevNotes: prev.notes[`${r},${c}`] ?? [] },
       ];
-      return {
-        ...prev,
-        board: newBoard,
-        notes: newNotes,
-        moveHistory: newHistory,
-      };
+      return { ...prev, board: newBoard, notes: newNotes, moveHistory: newHistory };
     });
   }, []);
 
   const undo = useCallback(() => {
-    setState((prev) => {
+    setState(prev => {
       if (prev.moveHistory.length === 0) return prev;
       const history = [...prev.moveHistory];
       const { r, c, prevValue, prevNotes } = history.pop();
-      const newBoard = prev.board.map((row) => [...row]);
+      const newBoard = prev.board.map(row => [...row]);
       newBoard[r][c] = prevValue;
       const newNotes = { ...prev.notes };
       if (prevNotes.length > 0) newNotes[`${r},${c}`] = prevNotes;
@@ -212,11 +190,11 @@ export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
   }, []);
 
   const toggleNotesMode = useCallback(() => {
-    setState((prev) => ({ ...prev, notesMode: !prev.notesMode }));
+    setState(prev => ({ ...prev, notesMode: !prev.notesMode }));
   }, []);
 
   const useHint = useCallback(() => {
-    setState((prev) => {
+    setState(prev => {
       if (!prev.selectedCell || prev.isComplete) return prev;
       if (prev.hintsUsed >= prev.hintsAllowed) return prev; // no hints left
       const [r, c] = prev.selectedCell;
@@ -224,7 +202,7 @@ export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
       // Don't use a hint if the cell already has the correct value
       if (prev.board[r][c] === prev.solution[r][c]) return prev;
 
-      const newBoard = prev.board.map((row) => [...row]);
+      const newBoard = prev.board.map(row => [...row]);
       newBoard[r][c] = prev.solution[r][c];
       const newNotes = { ...prev.notes };
       delete newNotes[`${r},${c}`];
@@ -236,9 +214,7 @@ export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
         hintsUsed: prev.hintsUsed + 1,
         isComplete: isSolved(newBoard),
         puzzle: prev.puzzle.map((row, ri) =>
-          ri === r
-            ? row.map((v, ci) => (ci === c ? prev.solution[r][c] : v))
-            : row,
+          ri === r ? row.map((v, ci) => (ci === c ? prev.solution[r][c] : v)) : row
         ),
       };
     });
@@ -248,69 +224,37 @@ export function useSudokuGame(difficulty = "medium", resumeFromSave = false) {
   useEffect(() => {
     function handleKeyDown(e) {
       if (isComplete) return;
-      if (e.key >= "1" && e.key <= "9") {
-        e.preventDefault();
-        placeNumber(parseInt(e.key));
-        return;
+      if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault(); placeNumber(parseInt(e.key)); return;
       }
-      if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") {
-        e.preventDefault();
-        eraseCell();
-        return;
+      if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+        e.preventDefault(); eraseCell(); return;
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === "z") {
-        e.preventDefault();
-        undo();
-        return;
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault(); undo(); return;
       }
       if (!state.selectedCell) return;
       const [r, c] = state.selectedCell;
-      const moves = {
-        ArrowUp: [r - 1, c],
-        ArrowDown: [r + 1, c],
-        ArrowLeft: [r, c - 1],
-        ArrowRight: [r, c + 1],
-      };
+      const moves = { ArrowUp:[r-1,c], ArrowDown:[r+1,c], ArrowLeft:[r,c-1], ArrowRight:[r,c+1] };
       if (moves[e.key]) {
         e.preventDefault();
         const [nr, nc] = moves[e.key];
         if (nr >= 0 && nr < 9 && nc >= 0 && nc < 9) selectCell(nr, nc);
       }
     }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    state.selectedCell,
-    notesMode,
-    isComplete,
-    placeNumber,
-    eraseCell,
-    undo,
-    selectCell,
-  ]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [state.selectedCell, notesMode, isComplete, placeNumber, eraseCell, undo, selectCell]);
 
   return {
-    board,
-    puzzle,
-    solution,
-    notes,
-    selectedCell,
-    notesMode,
-    isComplete,
-    difficulty: state.difficulty,
+    board, puzzle, solution, notes, selectedCell,
+    notesMode, isComplete, difficulty: state.difficulty,
     canUndo: moveHistory.length > 0,
-    hintsUsed,
-    hintsAllowed,
+    hintsUsed, hintsAllowed,
     hintsLeft: hintsAllowed - hintsUsed,
     elapsedAtSave: state.elapsedAtSave,
     // expose raw state for saving
     rawState: state,
-    newGame,
-    selectCell,
-    placeNumber,
-    eraseCell,
-    undo,
-    toggleNotesMode,
-    useHint,
+    newGame, selectCell, placeNumber, eraseCell, undo, toggleNotesMode, useHint,
   };
 }

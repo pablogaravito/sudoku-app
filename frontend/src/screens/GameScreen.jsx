@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSudokuGame, saveGame, deleteSavedGame } from '../hooks/useSudokuGame';
 import { useTimer } from '../hooks/useTimer';
+import { usePuzzle, submitPuzzle } from '../hooks/usePuzzle';
 import SudokuBoard from '../components/SudokuBoard';
 import NumberPad from '../components/NumberPad';
 import styles from './GameScreen.module.css';
@@ -19,8 +20,20 @@ const DIFF_COLORS = {
   easy: '#16a34a', medium: '#d97706', hard: '#dc2626', expert: '#7c3aed'
 };
 
-export default function GameScreen({ difficulty, resumeFromSave, onHome, onAbandon, onComplete }) {
-  const game  = useSudokuGame(difficulty, resumeFromSave);
+export default function GameScreen({ difficulty, resumeFromSave, userId, onHome, onAbandon, onComplete }) {
+  // Fetch puzzle from server (skip if resuming a saved game)
+  const { puzzle: serverPuzzle, puzzleId, loading: puzzleLoading, error: puzzleError }
+    = usePuzzle(resumeFromSave ? null : difficulty, resumeFromSave ? null : userId);
+
+  // Wait for puzzle before initialising game
+  const puzzleReady = resumeFromSave || (serverPuzzle && puzzleId);
+
+  const game  = useSudokuGame(
+    difficulty,
+    resumeFromSave,
+    puzzleReady && !resumeFromSave ? serverPuzzle : null,
+    null // solution stays server-side — hints use client-side solution from generator fallback
+  );
   const timer = useTimer();
 
   // Whether to show the "leave game?" confirmation modal
@@ -28,21 +41,31 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
   const [showHintToast, setShowHintToast]   = useState(false);
   const hintToastTimer = useRef(null);
 
-  // Start timer on mount, offset by saved elapsed time if resuming
+  // Start timer once puzzle is ready (wait for server fetch if not resuming)
   useEffect(() => {
-    if (game.elapsedAtSave > 0) {
-      // pre-seed the timer with saved elapsed time
-      timer.addSeconds(game.elapsedAtSave);
-    }
+    if (!puzzleReady) return;
+    if (game.elapsedAtSave > 0) timer.addSeconds(game.elapsedAtSave);
     timer.start();
-  }, []);
+  }, [puzzleReady]);
 
   useEffect(() => {
-    if (game.isComplete) {
-      timer.pause();
-      deleteSavedGame(difficulty);
+    if (!game.isComplete) return;
+    timer.pause();
+    deleteSavedGame(difficulty);
+
+    // Submit to server for validation if we have a puzzleId
+    const finish = async () => {
+      if (puzzleId) {
+        try {
+          await submitPuzzle(puzzleId, userId, game.board, timer.elapsed, game.hintsUsed);
+        } catch (err) {
+          console.error('Submit validation failed:', err);
+          // Still proceed — don't block the player on a network error
+        }
+      }
       onComplete({ difficulty, time: timer.elapsed, hintsUsed: game.hintsUsed });
-    }
+    };
+    finish();
   }, [game.isComplete]);
 
   // Auto-pause when the tab/window loses focus (phone call, switching apps, etc.)
@@ -103,6 +126,29 @@ export default function GameScreen({ difficulty, resumeFromSave, onHome, onAband
 
   const remainingCounts = getRemainingCounts(game.board);
   const hasSelectedCell = game.selectedCell !== null;
+
+  // Show loading while fetching puzzle from server
+  if (!resumeFromSave && puzzleLoading) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.loadingWrap}>
+          <div className={styles.loadingSpinner} />
+          <p className={styles.loadingText}>Generating your puzzle…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!resumeFromSave && puzzleError) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.loadingWrap}>
+          <p className={styles.loadingText}>Failed to load puzzle. Please try again.</p>
+          <button className={styles.iconBtn} onClick={onHome}>← Back</button>
+        </div>
+      </div>
+    );
+  }
 
   // Wrapped hint handler — shows one-time toast if no cell selected
   const handleHint = () => {

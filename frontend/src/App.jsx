@@ -187,6 +187,7 @@ export default function App() {
           key={`${difficulty}-${resuming}`}
           difficulty={difficulty}
           resumeFromSave={resuming}
+          userId={auth.user?.id}
           onHome={() => setScreen('home')}
           onAbandon={handleAbandon}
           onComplete={handleComplete}

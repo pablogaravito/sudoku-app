@@ -29,7 +29,8 @@ export default function App() {
   const [screen, setScreen]               = useState('home');
   const [difficulty, setDifficulty]       = useState('medium');
   const [resuming, setResuming]           = useState(false);
-  const [winInfo, setWinInfo]             = useState(null);
+  const [gameKey, setGameKey] = useState(0); // increment to force remount
+  const [winInfo, setWinInfo] = useState(null);
   const [changingUsername, setChangingUsername] = useState(false);
 
   const auth    = useAuth();
@@ -52,20 +53,33 @@ export default function App() {
     setScreen('game');
   }, []);
 
-  const handleComplete = useCallback(async ({ difficulty: diff, time, hintsUsed }) => {
+  const handleComplete = useCallback(async ({ difficulty: diff, time, hintsUsed, playAgain }) => {
+    // Play again — just remount GameScreen with new key for fresh puzzle fetch
+    if (playAgain) {
+      setGameKey(k => k + 1);
+      setScreen('game');
+      return;
+    }
     const all         = await loadRemoteStats(auth.user.id);
     const prev        = all[diff];
     const prevBest    = prev?.best ?? Infinity;
     const isNewRecord = time < prevBest;
     const isClean     = hintsUsed === 0;
 
-    // For clean games, also track best clean time
     const prevBestClean    = prev?.bestCleanTime ?? Infinity;
     const isNewCleanRecord = isClean && time < prevBestClean;
 
+    // Only check global rank on new personal records AND clean games
+    // (hint-assisted times don't affect leaderboard standing)
     const [globalRank, periodBest] = await Promise.all([
-      isNewRecord ? getRankForTime(auth.user.id, diff, time) : Promise.resolve(null),
-      checkPeriodBest(auth.user.id, diff, time),
+      (isNewRecord && isClean)
+        ? getRankForTime(auth.user.id, diff, time)
+        : Promise.resolve(null),
+      // Only check period best if it's NOT already an all-time record
+      // (no point showing "best this week" if you just set an all-time best)
+      !isNewRecord
+        ? checkPeriodBest(auth.user.id, diff, time)
+        : Promise.resolve(null),
     ]);
 
     await Promise.all([
@@ -184,7 +198,7 @@ export default function App() {
       )}
       {screen === 'game' && (
         <GameScreen
-          key={`${difficulty}-${resuming}`}
+          key={`${difficulty}-${resuming}-${gameKey}`}
           difficulty={difficulty}
           resumeFromSave={resuming}
           userId={auth.user?.id}
@@ -196,7 +210,7 @@ export default function App() {
       {screen === 'win' && winInfo && (
         <WinScreen
           winInfo={winInfo}
-          onPlayAgain={() => { setScreen('game'); setResuming(false); }}
+          onPlayAgain={() => handleComplete({ difficulty, time: null, hintsUsed: 0, playAgain: true })}
           onHome={() => setScreen('home')}
           onViewStats={() => setScreen('stats')}
           theme={theme}

@@ -43,13 +43,12 @@ export default function LeaderboardScreen({ onBack, userId }) {
         const inTop10 = top10.some(e => e.user_id === userId);
 
         if (!inTop10 && userId) {
-          // Fetch user's own entry to show below the top 10
           const { data } = await supabase
             .from('leaderboard')
             .select('username, best_time, won, user_id')
             .eq('difficulty', activeTab)
             .eq('user_id', userId)
-            .single();
+            .maybeSingle();
 
           if (data?.best_time) {
             setMyEntry(data);

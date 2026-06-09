@@ -47,12 +47,18 @@ export default async function handler(req, res) {
     }
 
     // Validate the submitted board against the stored solution
+    // Force numeric comparison — jsonb can return strings
     const solution = puzzle.solution;
+
+    // Debug: log first row to see actual types
+    console.log('Board row 0:', JSON.stringify(board[0]), board[0].map(v => typeof v));
+    console.log('Solution row 0:', JSON.stringify(solution[0]), solution[0]?.map(v => typeof v));
+
     let valid = true;
 
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
-        if (board[r][c] !== solution[r][c]) {
+        if (Number(board[r][c]) !== Number(solution[r][c])) {
           valid = false;
           break;
         }
@@ -61,8 +67,13 @@ export default async function handler(req, res) {
     }
 
     if (!valid) {
+      console.log('Board validation failed for puzzle', puzzleId);
+      console.log('Sample: board[0][0]=', board[0][0], typeof board[0][0],
+                  'solution[0][0]=', solution[0][0], typeof solution[0][0]);
       return res.status(400).json({ error: 'Incorrect solution' });
     }
+
+    console.log('Board validated successfully for puzzle', puzzleId);
 
     // Record that this user played this puzzle
     await supabase.from('puzzle_plays').upsert({

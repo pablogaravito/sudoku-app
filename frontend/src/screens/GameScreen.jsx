@@ -73,6 +73,17 @@ export default function GameScreen({ difficulty, resumeFromSave, userId, onHome,
   // ── Show loading until BOTH server puzzle AND game state are ready ──────────
   const gameReady = !!(game?.board);
 
+  console.log('GameScreen render:', {
+    puzzleLoading,
+    puzzleError,
+    serverPuzzle: !!serverPuzzle,
+    puzzleId: !!puzzleId,
+    puzzleReady,
+    gameReady,
+    gameBoard: !!game?.board,
+    gameState: game,
+  });
+
   if (!resumeFromSave && (puzzleLoading || !gameReady)) {
     return (
       <div className={styles.screen}>

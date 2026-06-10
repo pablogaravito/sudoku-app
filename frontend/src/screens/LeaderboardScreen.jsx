@@ -74,7 +74,7 @@ export default function LeaderboardScreen({ onBack, userId }) {
           <h1 className={styles.title}>Leaderboard</h1>
           <p className={styles.subtitle}>Clean solves · no hints used</p>
         </div>
-        <div />
+        <div className={styles.headerSpacer} />
       </header>
 
       {/* Difficulty tabs */}

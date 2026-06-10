@@ -249,7 +249,7 @@ export default function StatsScreen({ onBack, getStats, userId }) {
       <header className={styles.header}>
         <button className={styles.backBtn} onClick={onBack}>← Back</button>
         <h1 className={styles.title}>My Stats</h1>
-        <div />
+        <div className={styles.headerSpacer} />
       </header>
 
       <div className={styles.tabs} role="tablist">

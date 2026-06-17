@@ -146,8 +146,8 @@ export default function AuthScreen({
             {error && <p className={styles.error}>{error}</p>}
 
             <p className={styles.fine}>
-              You need to log in to save your scores. This page uses Supabase
-              for the email service and the Google authentication.
+              This page uses Supabase for the email service and the Google
+              authentication.
             </p>
           </>
         )}

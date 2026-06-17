@@ -21,7 +21,7 @@ const DIFF_COLORS = {
   easy: '#16a34a', medium: '#d97706', hard: '#dc2626', expert: '#7c3aed', insane: '#be123c',
 };
 
-export default function GameScreen({ difficulty, resumeFromSave, userId, onHome, onAbandon, onComplete, theme }) {
+export default function GameScreen({ difficulty, resumeFromSave, userId, onHome, onAbandon, onComplete, theme, autoRemoveNotes = true }) {
   const { puzzle: serverPuzzle, puzzleId, loading: puzzleLoading, error: puzzleError }
     = usePuzzle(resumeFromSave ? null : difficulty, resumeFromSave ? null : userId);
 
@@ -179,7 +179,7 @@ export default function GameScreen({ difficulty, resumeFromSave, userId, onHome,
       </div>
 
       <NumberPad
-        onNumber={game.placeNumber}
+        onNumber={(num) => game.placeNumber(num, autoRemoveNotes)}
         onErase={game.eraseCell}
         onUndo={game.undo}
         onToggleNotes={game.toggleNotesMode}

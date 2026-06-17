@@ -6,7 +6,7 @@
 import ProfileMenu from './ProfileMenu';
 import styles from './TopBar.module.css';
 
-export default function TopBar({ user, username, theme, onSignOut, onChangeUsername }) {
+export default function TopBar({ user, username, theme, onSignOut, onChangeUsername, autoRemoveNotes, onToggleAutoRemoveNotes }) {
   return (
     <div className={styles.bar}>
       <ProfileMenu
@@ -15,6 +15,8 @@ export default function TopBar({ user, username, theme, onSignOut, onChangeUsern
         theme={theme}
         onSignOut={onSignOut}
         onChangeUsername={onChangeUsername}
+        autoRemoveNotes={autoRemoveNotes}
+        onToggleAutoRemoveNotes={onToggleAutoRemoveNotes}
       />
     </div>
   );

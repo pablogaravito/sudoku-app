@@ -37,5 +37,9 @@ export function useProfile(userId) {
     setProfile(prev => ({ ...prev, username }));
   }, []);
 
-  return { profile, loading, updateUsername, reload: loadProfile };
+  const updatePreferences = useCallback((preferences) => {
+    setProfile(prev => ({ ...prev, preferences }));
+  }, []);
+
+  return { profile, loading, updateUsername, updatePreferences, reload: loadProfile };
 }

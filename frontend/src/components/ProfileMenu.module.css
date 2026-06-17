@@ -115,3 +115,32 @@
 
 .menuItemDanger { color: #dc2626; }
 .menuItemDanger:hover { background: #fee2e2; }
+
+/* Toggle switch */
+.toggle {
+  margin-left: auto;
+  width: 32px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--color-border);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+}
+.toggleOn {
+  background: var(--color-primary);
+}
+.toggleOn::after {
+  transform: translateX(14px);
+}

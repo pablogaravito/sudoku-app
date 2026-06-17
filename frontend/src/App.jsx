@@ -13,6 +13,7 @@ import { useProfile } from './hooks/useProfile';
 import {
   loadRemoteStats, saveRemoteStats, getRankForTime,
   insertGameSession, checkPeriodBest,
+  loadPreferences, savePreferences,
 } from './lib/statsService';
 import './styles/index.css';
 
@@ -36,6 +37,16 @@ export default function App() {
   const auth    = useAuth();
   const theme   = useTheme(auth.user);
   const profile = useProfile(auth.user?.id);
+
+  // Preferences — default autoRemoveNotes to true
+  const autoRemoveNotes = profile.profile?.preferences?.autoRemoveNotes ?? true;
+
+  const handleToggleAutoRemoveNotes = useCallback(async () => {
+    const next = !autoRemoveNotes;
+    const prefs = await loadPreferences(auth.user.id);
+    await savePreferences(auth.user.id, { ...prefs, autoRemoveNotes: next });
+    profile.updatePreferences({ ...profile.profile?.preferences, autoRemoveNotes: next });
+  }, [autoRemoveNotes, auth.user, profile]);
 
   const getStats = useCallback(async () => {
     return loadRemoteStats(auth.user.id);
@@ -185,6 +196,8 @@ export default function App() {
           theme={theme}
           onSignOut={auth.signOut}
           onChangeUsername={() => setChangingUsername(true)}
+          autoRemoveNotes={autoRemoveNotes}
+          onToggleAutoRemoveNotes={handleToggleAutoRemoveNotes}
         />
       )}
 
@@ -203,6 +216,7 @@ export default function App() {
           resumeFromSave={resuming}
           userId={auth.user?.id}
           theme={theme}
+          autoRemoveNotes={autoRemoveNotes}
           onHome={() => setScreen('home')}
           onAbandon={handleAbandon}
           onComplete={handleComplete}

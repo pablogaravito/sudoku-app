@@ -96,6 +96,22 @@ function stateFromSave(save) {
 
 // ─── The hook ─────────────────────────────────────────────────────────────────
 
+// Returns all peer cells [r,c] that share row, col, or box with [r,c]
+function getPeerCells(r, c) {
+  const peers = new Set();
+  for (let i = 0; i < 9; i++) {
+    peers.add(`${r},${i}`);
+    peers.add(`${i},${c}`);
+  }
+  const br = Math.floor(r / 3) * 3;
+  const bc = Math.floor(c / 3) * 3;
+  for (let dr = 0; dr < 3; dr++)
+    for (let dc = 0; dc < 3; dc++)
+      peers.add(`${br + dr},${bc + dc}`);
+  peers.delete(`${r},${c}`);
+  return [...peers].map(k => k.split(',').map(Number));
+}
+
 export function useSudokuGame(difficulty = 'medium', resumeFromSave = false, externalPuzzle = null) {
   const [state, setState] = useState(() => {
     if (resumeFromSave) {
@@ -150,7 +166,7 @@ export function useSudokuGame(difficulty = 'medium', resumeFromSave = false, ext
     });
   }, []);
 
-  const placeNumber = useCallback((num) => {
+  const placeNumber = useCallback((num, autoRemoveNotes = true) => {
     setState(prev => {
       if (!prev || !prev.selectedCell || prev.isComplete) return prev;
       const [r, c] = prev.selectedCell;
@@ -167,18 +183,33 @@ export function useSudokuGame(difficulty = 'medium', resumeFromSave = false, ext
 
       const newBoard = prev.board.map(row => [...row]);
       newBoard[r][c] = num;
-      const newNotes = { ...prev.notes };
+
+      // Start with cleared notes for the placed cell
+      let newNotes = { ...prev.notes };
       delete newNotes[`${r},${c}`];
+
+      // Auto-remove this number from notes of all peer cells
+      if (autoRemoveNotes) {
+        for (const [pr, pc] of getPeerCells(r, c)) {
+          const key = `${pr},${pc}`;
+          if (newNotes[key]?.includes(num)) {
+            const filtered = newNotes[key].filter(n => n !== num);
+            if (filtered.length === 0) delete newNotes[key];
+            else newNotes[key] = filtered;
+          }
+        }
+      }
+
       const newHistory = [
         ...prev.moveHistory,
         { r, c, prevValue: prev.board[r][c], prevNotes: prev.notes[`${r},${c}`] ?? [] },
       ];
       return {
         ...prev,
-        board: newBoard,
-        notes: newNotes,
+        board:       newBoard,
+        notes:       newNotes,
         moveHistory: newHistory,
-        isComplete: isSolved(newBoard),
+        isComplete:  isSolved(newBoard),
       };
     });
   }, []);

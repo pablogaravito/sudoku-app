@@ -25,6 +25,7 @@ function getAvatarColor(str) {
 export default function ProfileMenu({
   user, username, theme,
   onSignOut, onChangeUsername,
+  autoRemoveNotes, onToggleAutoRemoveNotes,
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -84,9 +85,20 @@ export default function ProfileMenu({
             Switch to {isDark ? 'light' : 'dark'} mode
           </button>
 
-          <div className={styles.divider} />
+          {/* Auto-remove notes toggle */}
+          <button
+            className={styles.menuItem}
+            onClick={onToggleAutoRemoveNotes}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9"/><path d="M3 3l18 18"/><path d="M6.5 6.5L3 10l4 4 1.5-1.5"/>
+              <path d="M9 3h9v9"/>
+            </svg>
+            Auto-remove notes
+            <span className={`${styles.toggle} ${autoRemoveNotes ? styles.toggleOn : ''}`} />
+          </button>
 
-          {/* Change username */}
+          <div className={styles.divider} />
           <button
             className={styles.menuItem}
             onClick={() => { setOpen(false); onChangeUsername(); }}

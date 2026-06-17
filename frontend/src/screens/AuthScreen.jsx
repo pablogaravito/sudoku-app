@@ -146,7 +146,8 @@ export default function AuthScreen({
             {error && <p className={styles.error}>{error}</p>}
 
             <p className={styles.fine}>
-              By signing in you agree to play Sudoku and have a good time.
+              You need to log in to save your scores. This page uses Supabase
+              for the email service and the Google authentication.
             </p>
           </>
         )}
@@ -238,14 +239,6 @@ export default function AuthScreen({
             </button>
           </>
         )}
-        <p
-          className="text-center text-muted mt-3"
-          style={{ fontSize: "0.8rem" }}
-        >
-          Necesitas logearte para poder guardar tus resultados. Esta página usa
-          Supabase como hosting y así aparecerá en el correo y en la
-          autenticación de Google.
-        </p>
       </div>
     </div>
   );
